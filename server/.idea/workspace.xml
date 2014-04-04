@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b111b127-ebd1-4d0e-98f6-41325228662e" name="Default" comment="" />
+    <list default="true" id="b111b127-ebd1-4d0e-98f6-41325228662e" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/pom.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/compiler.xml" afterPath="$PROJECT_DIR$/.idea/compiler.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/main.iml" afterPath="$PROJECT_DIR$/src/main/main.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+    </list>
     <ignored path="server.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -62,7 +69,20 @@
     <favorites_list name="server" />
   </component>
   <component name="FileEditorManager">
-    <leaf />
+    <leaf>
+      <file leaf-file-name="DataAccess.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/utils/DataAccess.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.10016695" vertical-offset="0" max-vertical-offset="2310">
+              <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+              <folding>
+                <element signature="e#381#390#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FindManager">
     <FindUsagesManager>
@@ -88,10 +108,16 @@
         <option value="$PROJECT_DIR$/src/main/java/utils/DataWriter.java" />
         <option value="$PROJECT_DIR$/src/main/java/messages/Account.java" />
         <option value="$PROJECT_DIR$/src/main/java/utils/DataAccess.java" />
+        <option value="$PROJECT_DIR$/src/main/pom.xml" />
       </list>
     </option>
   </component>
   <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="usePluginRegistry" value="true" />
+      </MavenGeneralSettings>
+    </option>
     <option name="importingSettings">
       <MavenImportingSettings>
         <option name="importAutomatically" value="true" />
@@ -151,20 +177,6 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="server" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="main" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="java" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
     </panes>
@@ -176,7 +188,7 @@
     <property name="MemberChooser.sorted" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="MemberChooser.copyJavadoc" value="false" />
-    <property name="options.lastSelected" value="project.propVCSSupport.Mappings" />
+    <property name="options.lastSelected" value="MavenSettings" />
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
@@ -447,12 +459,19 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.25041735" vertical-offset="0" max-vertical-offset="599">
+          <caret line="10" column="8" selection-start-line="10" selection-start-column="8" selection-end-line="10" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/utils/DataAccess.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.530303" vertical-offset="0" max-vertical-offset="2310">
-          <caret line="21" column="42" selection-start-line="21" selection-start-column="42" selection-end-line="21" selection-end-column="42" />
+        <state vertical-scroll-proportion="0.10016695" vertical-offset="0" max-vertical-offset="2310">
+          <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
           <folding>
-            <element signature="imports" expanded="true" />
             <element signature="e#381#390#0" expanded="true" />
           </folding>
         </state>
