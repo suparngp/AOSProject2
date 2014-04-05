@@ -32,10 +32,10 @@ public class Logger {
     * Logs data at ERROR Level
     * */
     public static void error(Object... messages) {
-        System.out.println("*********************ERROR LOG Begins********************");
+        System.err.println("*********************ERROR LOG Begins********************");
         for (Object o : messages) {
             System.err.println(o);
         }
-        System.out.println("*********************ERROR LOG Ends********************");
+        System.err.println("*********************ERROR LOG Ends********************");
     }
 }

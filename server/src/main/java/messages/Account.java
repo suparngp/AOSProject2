@@ -15,9 +15,14 @@ public class Account implements Comparable<Account> {
     private Date createdAt;
     private Date updatedAt;
 
+    /**
+     * Creates a new Account with the given id.
+     * @param id the account id.
+     */
     public Account(String id) {
         this.id = id;
     }
+
 
     /**
      * Gets createdAt.
@@ -147,5 +152,17 @@ public class Account implements Comparable<Account> {
     @Override
     public int compareTo(Account o) {
         return this.id.compareTo(o.id);
+    }
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "id='" + id + '\'' +
+                ", ownerName='" + ownerName + '\'' +
+                ", openingBalance=" + openingBalance +
+                ", currentBalance=" + currentBalance +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 }

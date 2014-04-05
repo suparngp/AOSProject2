@@ -22,11 +22,13 @@ public class DataAccess extends Thread {
      * Loads all the records in the memory
      */
     public DataAccess() {
-
         try {
             /**
              * Load all the records in the memory.
              * */
+            if (!dataFile.exists())
+                dataFile.createNewFile();
+
             br = new BufferedReader(new FileReader(dataFile));
             Gson gson = new Gson();
 
@@ -34,6 +36,7 @@ public class DataAccess extends Thread {
             while (input != null) {
                 Account acc = gson.fromJson(input, Account.class);
                 accountList.add(acc);
+                input = br.readLine();
             }
         } catch (Exception e) {
             Logger.error("Unable to initialize the Data Access Layer", e);
@@ -48,7 +51,7 @@ public class DataAccess extends Thread {
      * @throws Exception if creation fails
      */
     public Account createAccount(Account account) throws Exception {
-        if (getAccount(account.getId()) == null) {
+        if (getAccount(account.getId()) != null) {
             Logger.error("Account with a duplicate ID cannot be created", account);
             throw new Exception();
         }
@@ -96,6 +99,7 @@ public class DataAccess extends Thread {
             throw new Exception("Account not found ");
         }
         this.accountList.remove(toBeRemoved);
+        this.flushLatestAccountData();
         return toBeRemoved;
     }
 
@@ -144,5 +148,14 @@ public class DataAccess extends Thread {
             Logger.error("Unable to flush the latest accounts data to the file", e);
             throw e;
         }
+    }
+
+    public HashSet<Account> getAllAccounts(){
+        return this.accountList;
+    }
+
+    public void clearAllData() throws Exception{
+        this.accountList.clear();
+        flushLatestAccountData();
     }
 }
