@@ -1,11 +1,11 @@
 package test.utils;
 
+import common.messages.Account;
+import common.utils.DataAccess;
 import junit.framework.Assert;
-import messages.Account;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import utils.DataAccess;
 
 import java.util.Date;
 import java.util.Random;

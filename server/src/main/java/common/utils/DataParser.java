@@ -1,7 +1,7 @@
-package utils;
+package common.utils;
 
 import com.google.gson.Gson;
-import messages.Account;
+import common.messages.Account;
 
 /**
  * Created by suparngupta on 4/4/14.

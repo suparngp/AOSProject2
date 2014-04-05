@@ -1,7 +1,7 @@
-package network;
+package server.network;
 
-import utils.Globals;
-import utils.Logger;
+import common.utils.Globals;
+import common.utils.Logger;
 
 import java.net.ServerSocket;
 import java.net.Socket;

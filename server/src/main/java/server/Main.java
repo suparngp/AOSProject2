@@ -1,5 +1,7 @@
-import messages.Account;
-import utils.DataAccess;
+package server;
+
+import common.messages.Account;
+import common.utils.DataAccess;
 
 import java.util.Date;
 
@@ -8,7 +10,7 @@ import java.util.Date;
  */
 public class Main {
 
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws Exception {
         DataAccess access = new DataAccess();
         Account acc = new Account("1111");
         Date date = new Date();

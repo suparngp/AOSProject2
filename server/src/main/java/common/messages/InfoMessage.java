@@ -1,4 +1,4 @@
-package messages;
+package common.messages;
 
 /**
  * A general Info message

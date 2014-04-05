@@ -1,8 +1,8 @@
-package messages;
+package common.messages;
 
 /**
- * A wrapper for the communication messages.
- * All the comm messages are converted to the byte stream and sent along with the message type.
+ * A wrapper for the communication common.messages.
+ * All the comm common.messages are converted to the byte stream and sent along with the message type.
  * Created by suparngupta on 4/5/14.
  */
 public class WrapperMessage {

@@ -1,4 +1,4 @@
-package utils;
+package common.utils;
 
 /**
  * Logging Class offering debug, log and error log levels.

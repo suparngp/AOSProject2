@@ -1,11 +1,11 @@
-package network;
+package server.network;
 
-import messages.InfoMessage;
-import messages.MessageType;
-import messages.WrapperMessage;
-import utils.Globals;
-import utils.Logger;
-import utils.MessageParser;
+import common.messages.InfoMessage;
+import common.messages.MessageType;
+import common.messages.WrapperMessage;
+import common.utils.Globals;
+import common.utils.Logger;
+import common.utils.MessageParser;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -55,7 +55,7 @@ public class ServerToServerHandler extends Thread {
 
                     Logger.error("SERVER_INTRO_REPLY received as async");
                     break;
-                case DICOVERY_COMPLETE:
+                case DISCOVERY_COMPLETE:
                     recMess = (InfoMessage) MessageParser.deserializeObject(wrapper.getMessageBody());
                     Globals.discoveryMessages.add(recMess.getSenderId());
                     if (Globals.discoveryMessages.size() == Globals.serverCount - 1) {

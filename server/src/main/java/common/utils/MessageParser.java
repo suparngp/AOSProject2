@@ -1,8 +1,8 @@
-package utils;
+package common.utils;
 
 import com.google.gson.Gson;
-import messages.MessageType;
-import messages.WrapperMessage;
+import common.messages.MessageType;
+import common.messages.WrapperMessage;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,7 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 /**
- * Parses the communication messages to required format POJO <-> Byte Stream
+ * Parses the communication common.messages to required format POJO <-> Byte Stream
  * Created by suparngupta on 4/5/14.
  */
 public class MessageParser {

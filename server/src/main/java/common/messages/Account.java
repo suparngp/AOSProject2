@@ -1,4 +1,4 @@
-package messages;
+package common.messages;
 
 import java.util.Date;
 
