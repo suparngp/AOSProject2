@@ -1,0 +1,74 @@
+package network;
+
+import messages.InfoMessage;
+import messages.MessageType;
+import messages.WrapperMessage;
+import utils.Globals;
+import utils.Logger;
+import utils.MessageParser;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.net.Socket;
+
+/**
+ * Request Handler for Server to Server Communication
+ * Created by suparngupta on 4/5/14.
+ */
+public class ServerToServerHandler extends Thread {
+
+    private Socket socket;
+    private Node node;
+
+    public ServerToServerHandler(Node node, Socket socket) {
+        super("ServerToServerHandler");
+        this.socket = socket;
+        this.node = node;
+    }
+
+
+    public void run() {
+        try {
+            if (!socket.isConnected() || socket.isClosed()) {
+                return;
+            }
+            DataInputStream dis = new DataInputStream(socket.getInputStream());
+            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+            String messageStr = dis.readUTF();
+
+            WrapperMessage wrapper = MessageParser.parseMessageJSON(messageStr);
+
+            switch (wrapper.getMessageType()) {
+
+                case SERVER_INTRO:
+                    InfoMessage recMess = (InfoMessage) MessageParser.deserializeObject(wrapper.getMessageBody());
+                    InfoMessage info = new InfoMessage(this.node.getNodeId(), recMess.getSenderId());
+                    String toBeSent = MessageParser.createWrapper(info, MessageType.SERVER_INTRO_REPLY);
+                    dos.writeUTF(toBeSent);
+                    dos.flush();
+                    break;
+
+                /**
+                 * This case will never happen since Replies are always sent in sync.
+                 * */
+                case SERVER_INTRO_REPLY:
+
+                    Logger.error("SERVER_INTRO_REPLY received as async");
+                    break;
+                case DICOVERY_COMPLETE:
+                    recMess = (InfoMessage) MessageParser.deserializeObject(wrapper.getMessageBody());
+                    Globals.discoveryMessages.add(recMess.getSenderId());
+                    if (Globals.discoveryMessages.size() == Globals.serverCount - 1) {
+                        Logger.log("All  servers have been discovered");
+
+                        //TODO: take the next step.
+                    }
+                    break;
+            }
+        } catch (Exception e) {
+            Logger.error("Unable to handle the server to server request", e);
+        }
+    }
+
+
+}

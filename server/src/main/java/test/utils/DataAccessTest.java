@@ -121,7 +121,7 @@ public class DataAccessTest {
         Account[] accounts = {createRandomAccount(), createRandomAccount(), createRandomAccount()};
 
         DataAccess access = new DataAccess();
-        for(Account acc: accounts){
+        for (Account acc : accounts) {
             access.createAccount(acc);
         }
         Assert.assertEquals(3, access.getAllAccounts().size());
@@ -134,8 +134,7 @@ public class DataAccessTest {
         Assert.assertEquals(access.getAllAccounts().isEmpty(), true);
     }
 
-
-    private Account createRandomAccount(){
+    private Account createRandomAccount() {
         Account acc = new Account(String.valueOf(new Random().nextLong()));
         acc.setOwnerName("Someone");
         Date date = new Date();
@@ -145,4 +144,4 @@ public class DataAccessTest {
         acc.setCurrentBalance(100000.0);
         return acc;
     }
-} 
+}
