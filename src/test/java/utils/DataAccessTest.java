@@ -1,7 +1,7 @@
-package test.utils;
+package utils;
 
 import common.messages.Account;
-import common.utils.DataAccess;
+import server.data.DataAccess;
 import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;

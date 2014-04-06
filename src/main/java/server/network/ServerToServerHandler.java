@@ -3,7 +3,7 @@ package server.network;
 import common.messages.InfoMessage;
 import common.messages.MessageType;
 import common.messages.WrapperMessage;
-import common.utils.Globals;
+import server.Globals;
 import common.utils.Logger;
 import common.utils.MessageParser;
 
@@ -39,7 +39,6 @@ public class ServerToServerHandler extends Thread {
             WrapperMessage wrapper = MessageParser.parseMessageJSON(messageStr);
 
             switch (wrapper.getMessageType()) {
-
                 case SERVER_INTRO:
                     InfoMessage recMess = (InfoMessage) MessageParser.deserializeObject(wrapper.getMessageBody());
                     InfoMessage info = new InfoMessage(this.node.getNodeId(), recMess.getSenderId());
@@ -52,7 +51,6 @@ public class ServerToServerHandler extends Thread {
                  * This case will never happen since Replies are always sent in sync.
                  * */
                 case SERVER_INTRO_REPLY:
-
                     Logger.error("SERVER_INTRO_REPLY received as async");
                     break;
                 case DISCOVERY_COMPLETE:
@@ -60,7 +58,6 @@ public class ServerToServerHandler extends Thread {
                     Globals.discoveryMessages.add(recMess.getSenderId());
                     if (Globals.discoveryMessages.size() == Globals.serverCount - 1) {
                         Logger.log("All  servers have been discovered");
-
                         //TODO: take the next step.
                     }
                     break;

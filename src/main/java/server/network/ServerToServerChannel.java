@@ -1,6 +1,6 @@
 package server.network;
 
-import common.utils.Globals;
+import server.Globals;
 import common.utils.Logger;
 
 import java.net.ServerSocket;
@@ -16,7 +16,7 @@ public class ServerToServerChannel extends Thread {
     private ServerSocket serverToServerSocket;
 
     public ServerToServerChannel() {
-        super("ServerChannelThread");
+        super("ServerToServerChannelThread");
     }
 
 
@@ -25,13 +25,14 @@ public class ServerToServerChannel extends Thread {
      *
      * @throws Exception if listening serverToServerSocket cannot be established.
      */
-    public void init() throws Exception {
+    public ServerToServerChannel init() throws Exception {
         try {
-            serverToServerSocket = new ServerSocket(Globals.serverChannelPort);
+            this.serverToServerSocket = new ServerSocket(Globals.serverChannelPort);
         } catch (Exception e) {
             Logger.error("Unable to start the Server to Server Channel", e);
             throw e;
         }
+        return this;
     }
 
     @Override
