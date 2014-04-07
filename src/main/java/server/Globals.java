@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class Globals {
     public static String dataFileName = "data.txt";
-    public static int serverCount = 1;
+    public static int serverCount = 2;
     public static int serverChannelPort = 9999;
     public static int discoveredServers = 0;
     public static List<Integer> discoveryMessages = new ArrayList<Integer>();

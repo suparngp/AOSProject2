@@ -1,6 +1,5 @@
 package network;
 
-import server.Globals;
 import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
@@ -31,10 +30,10 @@ public class ServerToServerChannelTest {
      */
     @Test
     public void testInit() throws Exception {
-        ServerToServerChannel serverToServerChannel = new ServerToServerChannel();
+        ServerToServerChannel serverToServerChannel = new ServerToServerChannel(9001);
         serverToServerChannel.init();
         Assert.assertTrue(serverToServerChannel.getServerToServerSocket() != null);
-        Assert.assertEquals(serverToServerChannel.getServerToServerSocket().getLocalPort(), Globals.serverChannelPort);
+        Assert.assertEquals(serverToServerChannel.getServerToServerSocket().getLocalPort(), 9001);
         serverToServerChannel.destroyServerChannel();
     }
 
@@ -43,11 +42,11 @@ public class ServerToServerChannelTest {
      */
     @Test
     public void testRun() throws Exception {
-        ServerToServerChannel serverToServerChannel = new ServerToServerChannel();
+        ServerToServerChannel serverToServerChannel = new ServerToServerChannel(9001);
         serverToServerChannel.init();
         serverToServerChannel.start();
         Thread.sleep(1000);
-        Socket socket = new Socket("localhost", Globals.serverChannelPort);
+        Socket socket = new Socket("localhost", 9001);
         Assert.assertTrue(socket.isConnected());
         socket.close();
         Thread.sleep(1000);

@@ -1,12 +1,13 @@
 package common.messages;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Represents an account class. An account represents the Data Object in this system.
  * Created by suparngupta on 4/4/14.
  */
-public class Account implements Comparable<Account> {
+public class Account implements Comparable<Account>, Serializable {
 
     private String id;
     private String ownerName;

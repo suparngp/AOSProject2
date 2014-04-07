@@ -23,7 +23,7 @@ public class DataAccessTest {
 
     @Before
     public void before() throws Exception {
-
+        new DataAccess().clearAllData();
     }
 
     @After

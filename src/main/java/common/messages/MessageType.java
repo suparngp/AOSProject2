@@ -1,10 +1,12 @@
 package common.messages;
 
+import java.io.Serializable;
+
 /**
  * Represents the message types of all the common.messages exchanged in the system.
  * Created by suparngupta on 4/5/14.
  */
-public enum MessageType {
+public enum MessageType implements Serializable{
     /**
      * Inter-server communication common.messages
      * */

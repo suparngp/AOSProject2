@@ -1,10 +1,12 @@
 package common.messages;
 
+import java.io.Serializable;
+
 /**
  * A general Info message
  * Created by suparngupta on 4/5/14.
  */
-public class InfoMessage {
+public class InfoMessage implements Serializable{
     private int senderId;
     private int receiverId;
 

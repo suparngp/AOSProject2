@@ -40,19 +40,24 @@ public class ConnectionManager {
             if(Globals.serverCount < 2){
                 return;
             }
+
+            Logger.debug("hosts", Globals.serverHostNames, Globals.serverPortNums);
             while(true){
 
                 for(int serverId: serverIds){
                     //if the serverId is same as this node's id, skip it or this node has already been discovered.
-                    if(node.getId() == serverId || discoveredNodes.contains(serverId)){
+                    Logger.debug("Node connecting", node);
+                    if(node.getNodeId() == serverId || discoveredNodes.contains(serverId)){
                         continue;
                     }
 
+                    Logger.debug("ServerId", serverId);
                     //create a new socket with the server
                     Socket socket;
                     try{
                         socket = new Socket(Globals.serverHostNames.get(serverId)
                                 , Globals.serverPortNums.get(serverId));
+                        Logger.log("Socket connected to ", socket.getLocalAddress().getHostAddress(), socket.getPort());
                         InfoMessage info = new InfoMessage(node.getNodeId(), serverId);
                         String message = MessageParser.createWrapper(info, MessageType.SERVER_INTRO);
                         DataInputStream dis = new DataInputStream(socket.getInputStream());
@@ -82,6 +87,8 @@ public class ConnectionManager {
                 if(discoveredNodes.size() == Globals.serverCount - 1){
                     break;
                 }
+
+                Thread.sleep(2000);
             }
 
 
