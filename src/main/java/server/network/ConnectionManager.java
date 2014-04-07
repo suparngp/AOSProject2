@@ -37,12 +37,12 @@ public class ConnectionManager {
         try{
             Set<Integer> serverIds = Globals.serverHostNames.keySet();
             HashSet<Integer> discoveredNodes = new HashSet<>();
-            if(Globals.serverCount < 2){
-                return;
-            }
+
 
             while(true){
-
+                if(Globals.serverCount < 2){
+                    break;
+                }
                 for(int serverId: serverIds){
                     //if the serverId is same as this node's id, skip it or this node has already been discovered.
 
@@ -99,12 +99,13 @@ public class ConnectionManager {
                         , Globals.serverPortNums.get(serverId));
             }
 
-            Logger.log("Node Discovery is complete, sending the DISCOVERY_COMPLETE message to everyone else.");
-            InfoMessage info = new InfoMessage(this.node.getNodeId(), -1);
-            String toBeSent = MessageParser.createWrapper(info, MessageType.DISCOVERY_COMPLETE);
-            this.node.broadcastMessage(receivers, toBeSent);
-            Logger.log("DISCOVERY_COMPLETE message successfully broadcasted.");
-            Logger.log("This server is ready to serve the clients");
+            if(!receivers.isEmpty()){
+                Logger.log("Node Discovery is complete, sending the DISCOVERY_COMPLETE message to everyone else.");
+                InfoMessage info = new InfoMessage(this.node.getNodeId(), -1);
+                String toBeSent = MessageParser.createWrapper(info, MessageType.DISCOVERY_COMPLETE);
+                this.node.broadcastMessage(receivers, toBeSent);
+                Logger.log("DISCOVERY_COMPLETE message successfully broadcasted.");
+            }
 
             node.getServerToClientChannel().init().start();
         }

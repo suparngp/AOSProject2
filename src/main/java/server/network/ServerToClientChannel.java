@@ -52,6 +52,7 @@ public class ServerToClientChannel extends Thread {
                 }
             });
 
+            Logger.log("This server is ready to serve the clients");
 
             while (true) {
                 Socket socket = serverToClientSocket.accept();

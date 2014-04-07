@@ -3,6 +3,7 @@ package utils;
 import common.messages.Account;
 import common.messages.InfoMessage;
 import common.messages.MessageType;
+import common.messages.ObjectReq;
 import common.utils.MessageParser;
 import junit.framework.Assert;
 import org.junit.After;
@@ -42,6 +43,11 @@ public class MessageParserTest {
         buffer = MessageParser.serializeObject(info);
         Assert.assertTrue(buffer != null);
         Assert.assertTrue(info.equals((InfoMessage)MessageParser.deserializeObject(buffer)));
+
+        ObjectReq req = new ObjectReq();
+        buffer = MessageParser.serializeObject(req);
+        Assert.assertTrue(buffer != null);
+        Assert.assertTrue(req.equals((ObjectReq)MessageParser.deserializeObject(buffer)));
     }
 
     /**

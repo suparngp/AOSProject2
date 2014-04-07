@@ -1,10 +1,13 @@
 package server.network;
 
+import common.messages.Account;
 import common.utils.Logger;
+import server.data.DataAccess;
 
 import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Represents the server node
@@ -17,7 +20,9 @@ public class Node extends Thread{
     private int clientPortNum;
     private ServerToServerChannel serverToServerChannel;
     private ServerToClientChannel serverToClientChannel;
-
+    private HashSet<String> lockedObjects;
+    private boolean inProcess;
+    private DataAccess dataAccess;
     /**
      * Creates a new node
      * @param nodeId the server's id 0-6
@@ -31,7 +36,9 @@ public class Node extends Thread{
         this.clientPortNum = clientPortNum;
         this.serverToServerChannel = new ServerToServerChannel(this);
         this.serverToClientChannel = new ServerToClientChannel(this);
-
+        this.lockedObjects = new HashSet<>();
+        this.inProcess = false;
+        this.dataAccess = new DataAccess();
         Logger.log("Created Node ", this);
     }
 
@@ -181,5 +188,76 @@ public class Node extends Thread{
      */
     public void setClientPortNum(int clientPortNum) {
         this.clientPortNum = clientPortNum;
+    }
+
+
+    /**
+     * Adds the object to the locked list.
+     *
+     * @param id the object id
+     * @return true if object is locked, else false.
+     */
+    public synchronized boolean lockObject (String id){
+        Account acc = this.dataAccess.getAccount(id);
+        if(acc == null || this.lockedObjects.contains(acc)){
+            return false;
+        }
+
+        lockedObjects.add(acc.getId());
+        return false;
+    }
+
+    /**
+     * Sets new dataAccess.
+     *
+     * @param dataAccess New value of dataAccess.
+     */
+    public void setDataAccess(DataAccess dataAccess) {
+        this.dataAccess = dataAccess;
+    }
+
+    /**
+     * Sets new inProcess.
+     *
+     * @param inProcess New value of inProcess.
+     */
+    public void setInProcess(boolean inProcess) {
+        this.inProcess = inProcess;
+    }
+
+    /**
+     * Gets inProcess.
+     *
+     * @return Value of inProcess.
+     */
+    public boolean isInProcess() {
+        return inProcess;
+    }
+
+    /**
+     * Gets dataAccess.
+     *
+     * @return Value of dataAccess.
+     */
+    public DataAccess getDataAccess() {
+        return dataAccess;
+    }
+
+    /**
+     * Gets lockedObjects.
+     *
+     * @return Value of lockedObjects.
+     */
+    public HashSet<String> getLockedObjects() {
+        return lockedObjects;
+    }
+
+    /**
+     * Sets new lockedObjects.
+     *
+     * @param lockedObjects New value of lockedObjects.
+     */
+    public void setLockedObjects(HashSet<String> lockedObjects) {
+        this.lockedObjects = lockedObjects;
     }
 }
