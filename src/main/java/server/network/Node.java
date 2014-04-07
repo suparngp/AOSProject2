@@ -13,20 +13,25 @@ import java.util.HashMap;
 public class Node extends Thread{
     private int nodeId;
     private String hostName;
-    private int portNum;
+    private int serverPortNum;
+    private int clientPortNum;
     private ServerToServerChannel serverToServerChannel;
+    private ServerToClientChannel serverToClientChannel;
 
     /**
      * Creates a new node
      * @param nodeId the server's id 0-6
      * @param hostName the host name
-     * @param portNum the port number
+     * @param serverPortNum the port number
      */
-    public Node(int nodeId, String hostName, int portNum) {
+    public Node(int nodeId, String hostName, int serverPortNum, int clientPortNum) {
         this.nodeId = nodeId;
         this.hostName = hostName;
-        this.portNum = portNum;
+        this.serverPortNum = serverPortNum;
+        this.clientPortNum = clientPortNum;
         this.serverToServerChannel = new ServerToServerChannel(this);
+        this.serverToClientChannel = new ServerToClientChannel(this);
+
         Logger.log("Created Node ", this);
     }
 
@@ -68,21 +73,21 @@ public class Node extends Thread{
     }
 
     /**
-     * Gets portNum.
+     * Gets serverPortNum.
      *
-     * @return Value of portNum.
+     * @return Value of serverPortNum.
      */
-    public int getPortNum() {
-        return portNum;
+    public int getServerPortNum() {
+        return serverPortNum;
     }
 
     /**
-     * Sets new portNum.
+     * Sets new serverPortNum.
      *
-     * @param portNum New value of portNum.
+     * @param serverPortNum New value of serverPortNum.
      */
-    public void setPortNum(int portNum) {
-        this.portNum = portNum;
+    public void setServerPortNum(int serverPortNum) {
+        this.serverPortNum = serverPortNum;
     }
 
     /**
@@ -120,7 +125,7 @@ public class Node extends Thread{
 
     /**
      * Broadcasts the message tp the given hosts-ports map.
-     * @param hostPortMap the host port map hostName <-> portNum
+     * @param hostPortMap the host port map hostName <-> serverPortNum
      * @param message the message
      * @throws Exception
      */
@@ -139,6 +144,42 @@ public class Node extends Thread{
         return "Node{" +
                 "nodeId=" + nodeId +
                 ", hostName='" + hostName + '\'' +
-                ", portNum=" + portNum + '}';
+                ", serverPortNum=" + serverPortNum + '}';
+    }
+
+    /**
+     * Gets serverToClientChannel.
+     *
+     * @return Value of serverToClientChannel.
+     */
+    public ServerToClientChannel getServerToClientChannel() {
+        return serverToClientChannel;
+    }
+
+    /**
+     * Sets new serverToClientChannel.
+     *
+     * @param serverToClientChannel New value of serverToClientChannel.
+     */
+    public void setServerToClientChannel(ServerToClientChannel serverToClientChannel) {
+        this.serverToClientChannel = serverToClientChannel;
+    }
+
+    /**
+     * Gets clientPortNum.
+     *
+     * @return Value of clientPortNum.
+     */
+    public int getClientPortNum() {
+        return clientPortNum;
+    }
+
+    /**
+     * Sets new clientPortNum.
+     *
+     * @param clientPortNum New value of clientPortNum.
+     */
+    public void setClientPortNum(int clientPortNum) {
+        this.clientPortNum = clientPortNum;
     }
 }

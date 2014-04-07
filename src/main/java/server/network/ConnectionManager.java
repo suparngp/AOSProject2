@@ -105,6 +105,8 @@ public class ConnectionManager {
             this.node.broadcastMessage(receivers, toBeSent);
             Logger.log("DISCOVERY_COMPLETE message successfully broadcasted.");
             Logger.log("This server is ready to serve the clients");
+
+            node.getServerToClientChannel().init().start();
         }
 
         catch (Exception e){

@@ -23,6 +23,7 @@ public class Globals {
     public static HashMap<Integer, String> serverHostNames = new HashMap<>();
     public static HashMap<Integer, Integer> serverPortNums = new HashMap<>();
 
+    public static HashMap<Integer, Integer>serverClientPortNums = new HashMap<>();
 
     static{
         try {
@@ -45,6 +46,23 @@ public class Globals {
             }
 
             br.close();
+
+            br = new BufferedReader(new FileReader(new File("server-client.config")));
+             input = br.readLine();
+            while(input != null){
+                String[] tokens = input.split(",");
+
+                if(tokens.length != 3){
+                    Logger.error("Unknown server configuration file format", input);
+                    System.exit(-1);
+                }
+
+                int nodeId = Integer.parseInt(tokens[0]);
+                int portNum = Integer.parseInt(tokens[2]);
+                serverClientPortNums.put(nodeId, portNum);
+                input = br.readLine();
+            }
+
         }
 
         catch(Exception e){

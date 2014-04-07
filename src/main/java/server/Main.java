@@ -27,7 +27,7 @@ public class Main {
 
         int nodeId = Integer.parseInt(args[0]);
         int port = Globals.serverPortNums.get(nodeId);
-        Node node = new Node(nodeId, Globals.serverHostNames.get(nodeId), port);
+        Node node = new Node(nodeId, Globals.serverHostNames.get(nodeId), port, Globals.serverClientPortNums.get(nodeId));
         ConnectionManager connectionManager = new ConnectionManager(node);
         connectionManager.initializeServerChannel();
         connectionManager.discoverNetwork();

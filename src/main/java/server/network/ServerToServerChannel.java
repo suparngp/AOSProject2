@@ -18,7 +18,7 @@ public class ServerToServerChannel extends Thread {
     public ServerToServerChannel(Node node) {
         super("ServerToServerChannelThread");
         this.node = node;
-        this.portNum = node.getPortNum();
+        this.portNum = node.getServerPortNum();
     }
 
 
@@ -30,6 +30,7 @@ public class ServerToServerChannel extends Thread {
     public ServerToServerChannel init() throws Exception {
         try {
             this.serverToServerSocket = new ServerSocket(this.portNum);
+            Logger.log("Server to Server channel is now open");
         } catch (Exception e) {
             Logger.error("Unable to start the Server to Server Channel", e);
             throw e;

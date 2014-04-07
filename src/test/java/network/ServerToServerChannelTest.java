@@ -31,11 +31,11 @@ public class ServerToServerChannelTest {
      */
     @Test
     public void testInit() throws Exception {
-        Node node = new Node(1, "127.0.0.1", 9001);
+        Node node = new Node(1, "127.0.0.1", 9001, 10000);
         ServerToServerChannel serverToServerChannel = new ServerToServerChannel(node);
         serverToServerChannel.init();
         Assert.assertTrue(serverToServerChannel.getServerToServerSocket() != null);
-        Assert.assertEquals(serverToServerChannel.getServerToServerSocket().getLocalPort(), node.getPortNum());
+        Assert.assertEquals(serverToServerChannel.getServerToServerSocket().getLocalPort(), node.getServerPortNum());
         serverToServerChannel.destroyServerChannel();
     }
 
@@ -44,7 +44,7 @@ public class ServerToServerChannelTest {
      */
     @Test
     public void testRun() throws Exception {
-        Node node = new Node(1, "127.0.0.1", 9001);
+        Node node = new Node(1, "127.0.0.1", 9001, 10000);
         ServerToServerChannel serverToServerChannel = new ServerToServerChannel(node);
         serverToServerChannel.init();
         serverToServerChannel.start();
