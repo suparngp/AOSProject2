@@ -41,17 +41,15 @@ public class ConnectionManager {
                 return;
             }
 
-            Logger.debug("hosts", Globals.serverHostNames, Globals.serverPortNums);
             while(true){
 
                 for(int serverId: serverIds){
                     //if the serverId is same as this node's id, skip it or this node has already been discovered.
-                    Logger.debug("Node connecting", node);
+
                     if(node.getNodeId() == serverId || discoveredNodes.contains(serverId)){
                         continue;
                     }
 
-                    Logger.debug("ServerId", serverId);
                     //create a new socket with the server
                     Socket socket;
                     try{
@@ -76,6 +74,8 @@ public class ConnectionManager {
                             throw new Exception();
                         }
 
+                        Logger.debug("Discovered Nodes", discoveredNodes);
+
                     }
 
                     catch(Exception e){
@@ -94,7 +94,7 @@ public class ConnectionManager {
 
             //if everyone has been discovered, then send the discovery complete message to everyone else.
             HashMap<String, Integer> receivers = new HashMap<>();
-            for(int serverId: serverIds){
+            for(int serverId: discoveredNodes){
                 receivers.put(Globals.serverHostNames.get(serverId)
                         , Globals.serverPortNums.get(serverId));
             }
@@ -104,6 +104,7 @@ public class ConnectionManager {
             String toBeSent = MessageParser.createWrapper(info, MessageType.DISCOVERY_COMPLETE);
             this.node.broadcastMessage(receivers, toBeSent);
             Logger.log("DISCOVERY_COMPLETE message successfully broadcasted.");
+            Logger.log("This server is ready to serve the clients");
         }
 
         catch (Exception e){

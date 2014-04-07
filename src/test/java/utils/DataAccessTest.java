@@ -1,14 +1,11 @@
 package utils;
 
 import common.messages.Account;
-import server.data.DataAccess;
 import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Date;
-import java.util.Random;
+import server.data.DataAccess;
 
 /**
  * DataAccess Tester.
@@ -36,7 +33,7 @@ public class DataAccessTest {
     @Test
     public void testCreateAccount() throws Exception {
 
-        Account acc = createRandomAccount();
+        Account acc = Commons.createRandomAccount();
         DataAccess access = new DataAccess();
         acc = access.createAccount(acc);
         Account stored = access.getAccount(acc.getId());
@@ -58,7 +55,7 @@ public class DataAccessTest {
     @Test
     public void testUpdateAccount() throws Exception {
 
-        Account acc = createRandomAccount();
+        Account acc = Commons.createRandomAccount();
 
         DataAccess access = new DataAccess();
         access.createAccount(acc);
@@ -79,7 +76,7 @@ public class DataAccessTest {
     @Test
     public void testRemoveAccount() throws Exception {
 
-        Account acc = createRandomAccount();
+        Account acc = Commons.createRandomAccount();
         DataAccess access = new DataAccess();
         access.createAccount(acc);
         access.removeAccount(acc.getId());
@@ -97,7 +94,7 @@ public class DataAccessTest {
     @Test
     public void testGetAccount() throws Exception {
 
-        Account acc = createRandomAccount();
+        Account acc = Commons.createRandomAccount();
         DataAccess access = new DataAccess();
         access.createAccount(acc);
         Account stored = access.getAccount(acc.getId());
@@ -118,7 +115,7 @@ public class DataAccessTest {
      */
     @Test
     public void testGetAllAccounts() throws Exception {
-        Account[] accounts = {createRandomAccount(), createRandomAccount(), createRandomAccount()};
+        Account[] accounts = {Commons.createRandomAccount(), Commons.createRandomAccount(), Commons.createRandomAccount()};
 
         DataAccess access = new DataAccess();
         for (Account acc : accounts) {
@@ -134,14 +131,5 @@ public class DataAccessTest {
         Assert.assertEquals(access.getAllAccounts().isEmpty(), true);
     }
 
-    private Account createRandomAccount() {
-        Account acc = new Account(String.valueOf(new Random().nextLong()));
-        acc.setOwnerName("Someone");
-        Date date = new Date();
-        acc.setUpdatedAt(date);
-        acc.setCreatedAt(date);
-        acc.setOpeningBalance(100000.0);
-        acc.setCurrentBalance(100000.0);
-        return acc;
-    }
+    
 }

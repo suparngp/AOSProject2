@@ -10,6 +10,7 @@ import common.utils.MessageParser;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
+import java.util.HashSet;
 
 /**
  * Request Handler for Server to Server Communication
@@ -19,6 +20,8 @@ public class ServerToServerHandler extends Thread {
 
     private Socket socket;
     private Node node;
+
+    private static HashSet<Integer> discoveredNodes = new HashSet<>();
 
     public ServerToServerHandler(Node node, Socket socket) {
         super("ServerToServerHandler");
@@ -55,9 +58,9 @@ public class ServerToServerHandler extends Thread {
                     break;
                 case DISCOVERY_COMPLETE:
                     recMess = (InfoMessage) MessageParser.deserializeObject(wrapper.getMessageBody());
-                    Globals.discoveryMessages.add(recMess.getSenderId());
-                    if (Globals.discoveryMessages.size() == Globals.serverCount - 1) {
-                        Logger.log("All  servers have been discovered");
+                    discoveredNodes.add(recMess.getSenderId());
+                    if (discoveredNodes.size() == Globals.serverCount - 1) {
+                        Logger.log("All other servers are ready to serve clients");
                         //TODO: take the next step.
                     }
                     break;

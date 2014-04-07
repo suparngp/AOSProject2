@@ -13,10 +13,12 @@ import java.net.SocketException;
 public class ServerToServerChannel extends Thread {
 
     private ServerSocket serverToServerSocket;
+    private Node node;
     private int portNum;
-    public ServerToServerChannel(int portNum) {
+    public ServerToServerChannel(Node node) {
         super("ServerToServerChannelThread");
-        this.portNum = portNum;
+        this.node = node;
+        this.portNum = node.getPortNum();
     }
 
 
@@ -52,6 +54,7 @@ public class ServerToServerChannel extends Thread {
             while (true) {
                 Socket socket = serverToServerSocket.accept();
                 Logger.debug("Connection was successfully established.");
+                new ServerToServerHandler(node, socket).start();
             }
         } catch (SocketException se) {
             Logger.log("Server to Server Channel has been successfully closed");

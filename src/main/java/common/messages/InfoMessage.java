@@ -50,4 +50,24 @@ public class InfoMessage implements Serializable{
     public int getSenderId() {
         return senderId;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof InfoMessage)) return false;
+
+        InfoMessage that = (InfoMessage) o;
+
+        if (receiverId != that.receiverId) return false;
+        if (senderId != that.senderId) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = senderId;
+        result = 31 * result + receiverId;
+        return result;
+    }
 }

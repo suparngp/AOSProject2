@@ -26,7 +26,7 @@ public class Node extends Thread{
         this.nodeId = nodeId;
         this.hostName = hostName;
         this.portNum = portNum;
-        this.serverToServerChannel = new ServerToServerChannel(this.portNum);
+        this.serverToServerChannel = new ServerToServerChannel(this);
         Logger.log("Created Node ", this);
     }
 
