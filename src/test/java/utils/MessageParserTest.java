@@ -1,9 +1,6 @@
 package utils;
 
-import common.messages.Account;
-import common.messages.InfoMessage;
-import common.messages.MessageType;
-import common.messages.ObjectReq;
+import common.messages.*;
 import common.utils.MessageParser;
 import junit.framework.Assert;
 import org.junit.After;
@@ -44,10 +41,15 @@ public class MessageParserTest {
         Assert.assertTrue(buffer != null);
         Assert.assertTrue(info.equals((InfoMessage)MessageParser.deserializeObject(buffer)));
 
-        ObjectReq req = new ObjectReq();
+        ObjectReq req = new ObjectReq("1234", 1, 2);
         buffer = MessageParser.serializeObject(req);
         Assert.assertTrue(buffer != null);
         Assert.assertTrue(req.equals((ObjectReq)MessageParser.deserializeObject(buffer)));
+
+        AccountMessage msg = new AccountMessage();
+        buffer = MessageParser.serializeObject(msg);
+        Assert.assertTrue(buffer != null);
+        Assert.assertTrue(msg.equals((AccountMessage)MessageParser.deserializeObject(buffer)));
     }
 
     /**
@@ -85,4 +87,4 @@ public class MessageParserTest {
         String message = MessageParser.createWrapper(info, MessageType.SERVER_INTRO);
         Assert.assertEquals(MessageType.SERVER_INTRO, MessageParser.parseMessageJSON(message).getMessageType());
     }
-} 
+}

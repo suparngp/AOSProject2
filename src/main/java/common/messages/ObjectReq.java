@@ -11,6 +11,12 @@ public class ObjectReq  implements Serializable{
     private int serverId;
     private int clientId;
 
+    public ObjectReq(String objectId, int serverId, int clientId) {
+        this.objectId = objectId;
+        this.serverId = serverId;
+        this.clientId = clientId;
+    }
+
     /**
      * Gets serverId.
      *

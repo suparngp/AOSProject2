@@ -6,6 +6,7 @@ import server.Globals;
 import common.utils.Logger;
 
 import java.io.*;
+import java.util.Date;
 import java.util.HashSet;
 
 /**
@@ -58,6 +59,9 @@ public class DataAccess extends Thread {
             throw new Exception();
         }
 
+        Date date = new Date();
+        account.setCreatedAt(date);
+        account.setUpdatedAt(date);
         this.accountList.add(account);
         this.flushLatestAccountData();
         return account;
@@ -76,6 +80,9 @@ public class DataAccess extends Thread {
             Logger.error("Trying to update a non-existent account", updatedAccount);
             throw new Exception("Account not found " + updatedAccount.getId());
         }
+        Date date = new Date();
+        updatedAccount.setUpdatedAt(date);
+
         this.accountList.add(updatedAccount);
         this.flushLatestAccountData();
         return updatedAccount;

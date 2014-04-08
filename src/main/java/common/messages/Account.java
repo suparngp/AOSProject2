@@ -140,7 +140,14 @@ public class Account implements Comparable<Account>, Serializable {
 
         Account account = (Account) o;
 
-        if (!id.equals(account.id)) return false;
+        //if (createdAt != null ? !createdAt.equals(account.createdAt) : account.createdAt != null) return false;
+        if (currentBalance != null ? !currentBalance.equals(account.currentBalance) : account.currentBalance != null)
+            return false;
+        if (id != null ? !id.equals(account.id) : account.id != null) return false;
+        if (openingBalance != null ? !openingBalance.equals(account.openingBalance) : account.openingBalance != null)
+            return false;
+        if (ownerName != null ? !ownerName.equals(account.ownerName) : account.ownerName != null) return false;
+        //if (updatedAt != null ? !updatedAt.equals(account.updatedAt) : account.updatedAt != null) return false;
 
         return true;
     }
@@ -166,4 +173,6 @@ public class Account implements Comparable<Account>, Serializable {
                 ", updatedAt=" + updatedAt +
                 '}';
     }
+
+
 }

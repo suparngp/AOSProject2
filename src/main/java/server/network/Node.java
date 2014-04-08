@@ -7,7 +7,6 @@ import server.data.DataAccess;
 import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.HashSet;
 
 /**
  * Represents the server node
@@ -20,7 +19,7 @@ public class Node extends Thread{
     private int clientPortNum;
     private ServerToServerChannel serverToServerChannel;
     private ServerToClientChannel serverToClientChannel;
-    private HashSet<String> lockedObjects;
+    private HashMap<String, Integer> lockedObjects;
     private boolean inProcess;
     private DataAccess dataAccess;
     /**
@@ -36,7 +35,7 @@ public class Node extends Thread{
         this.clientPortNum = clientPortNum;
         this.serverToServerChannel = new ServerToServerChannel(this);
         this.serverToClientChannel = new ServerToClientChannel(this);
-        this.lockedObjects = new HashSet<>();
+        this.lockedObjects = new HashMap<>();
         this.inProcess = false;
         this.dataAccess = new DataAccess();
         Logger.log("Created Node ", this);
@@ -194,19 +193,30 @@ public class Node extends Thread{
     /**
      * Adds the object to the locked list.
      *
-     * @param id the object id
+     * @param objectId the object id
      * @return true if object is locked, else false.
      */
-    public synchronized boolean lockObject (String id){
-        Account acc = this.dataAccess.getAccount(id);
-        if(acc == null || this.lockedObjects.contains(acc)){
+    public synchronized boolean lockObject (String objectId, int clientId){
+        Account acc = this.dataAccess.getAccount(objectId);
+        if(acc == null
+                || (this.lockedObjects.get(objectId) != null
+                && this.lockedObjects.get(objectId) != clientId)){
             return false;
         }
 
-        lockedObjects.add(acc.getId());
+        lockedObjects.put(objectId, clientId);
         return false;
     }
 
+    /**
+     * Checks if the required object is locked by the specified client.
+     * @param objectId the object id
+     * @param clientId the client id.
+     * @return
+     */
+    public boolean isObjectLocked(String objectId, int clientId){
+        return !(this.lockedObjects.get(objectId) == null || this.lockedObjects.get(objectId) != clientId);
+    }
     /**
      * Sets new dataAccess.
      *
@@ -248,7 +258,7 @@ public class Node extends Thread{
      *
      * @return Value of lockedObjects.
      */
-    public HashSet<String> getLockedObjects() {
+    public HashMap<String, Integer> getLockedObjects() {
         return lockedObjects;
     }
 
@@ -257,7 +267,7 @@ public class Node extends Thread{
      *
      * @param lockedObjects New value of lockedObjects.
      */
-    public void setLockedObjects(HashSet<String> lockedObjects) {
+    public void setLockedObjects(HashMap<String, Integer> lockedObjects) {
         this.lockedObjects = lockedObjects;
     }
 }
