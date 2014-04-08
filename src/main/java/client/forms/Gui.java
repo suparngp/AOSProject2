@@ -4,27 +4,18 @@ package client.forms;
  *
  */
 
-import javax.swing.ButtonGroup;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.JRadioButton;
-import javax.swing.JButton;
-import javax.swing.JTextField;
 public class Gui extends JFrame{
 
-    public static void main(String args[]){
-        Gui gui=new Gui();
-    }
+
     JRadioButton Create, Read, Update, Delete, None;
     public JTextField txtId, txtName, txtOpbal,txtCurbal,txtCreated,txtUpdated;
     public JLabel lblAccountId,lblName,lblOpeningBalance, lblCurrentBalance, lblCreatedAt, lblUpdatedAt;
     public JButton btnSubmit;
-    protected JLabel lblMessage;
+    protected static JLabel lblMessage;
 
     public Gui() {
         getContentPane().setLayout(null);
