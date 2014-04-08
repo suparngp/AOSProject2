@@ -3,7 +3,7 @@ package server.network;
 import common.messages.InfoMessage;
 import common.messages.MessageType;
 import common.messages.WrapperMessage;
-import server.Globals;
+import common.Globals;
 import common.utils.Logger;
 import common.utils.MessageParser;
 

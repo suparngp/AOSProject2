@@ -2,7 +2,7 @@ package server.data;
 
 import com.google.gson.Gson;
 import common.messages.Account;
-import server.Globals;
+import common.Globals;
 import common.utils.Logger;
 
 import java.io.*;

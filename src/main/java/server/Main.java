@@ -1,5 +1,6 @@
 package server;
 
+import common.Globals;
 import common.utils.Logger;
 import server.network.ConnectionManager;
 import server.network.Node;
