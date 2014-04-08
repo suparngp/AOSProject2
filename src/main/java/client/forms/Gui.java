@@ -4,12 +4,13 @@ package client.forms;
  *
  */
 
+import client.clientNetwork.ClientNode;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 public class Gui extends JFrame{
-
 
     JRadioButton Create, Read, Update, Delete, None;
     public JTextField txtId, txtName, txtOpbal,txtCurbal,txtCreated,txtUpdated;
@@ -17,7 +18,16 @@ public class Gui extends JFrame{
     public JButton btnSubmit;
     protected static JLabel lblMessage;
 
-    public Gui() {
+    private ClientNode clientNode;
+
+    private Gui myself;
+
+    private CreateForm createForm;
+
+    public Gui(int clientId) {
+        myself = this;
+        clientNode = new ClientNode(clientId);
+
         getContentPane().setLayout(null);
         ButtonGroup buttongroup= new ButtonGroup();
 
@@ -32,7 +42,7 @@ public class Gui extends JFrame{
         buttongroup.add(Create);
         Create.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                new CreateForm();
+                createForm = new CreateForm(myself);
             }});
 
 
@@ -150,5 +160,23 @@ public class Gui extends JFrame{
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 
+    }
+
+    /**
+     * Sets new clientNode.
+     *
+     * @param clientNode New value of clientNode.
+     */
+    public void setClientNode(ClientNode clientNode) {
+        this.clientNode = clientNode;
+    }
+
+    /**
+     * Gets clientNode.
+     *
+     * @return Value of clientNode.
+     */
+    public ClientNode getClientNode() {
+        return clientNode;
     }
 }

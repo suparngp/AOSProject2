@@ -210,6 +210,8 @@ public class ServerToClientChannelTest {
         wrapper = MessageParser.parseMessageJSON(rec);
         Assert.assertEquals(wrapper.getMessageType(), MessageType.CREATE_OBJ_SUCCESS);
 
+
+        //Create account message to wrap the account and server/client ids.
         AccountMessage accountMessage = (AccountMessage) MessageParser.deserializeObject(wrapper.getMessageBody());
         Account recAcc = accountMessage.getAccount();
 

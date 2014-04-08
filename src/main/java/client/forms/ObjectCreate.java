@@ -1,11 +1,11 @@
 package client.forms;
 
+import common.Globals;
 import common.messages.Account;
 import common.messages.MessageType;
 import common.messages.WrapperMessage;
 import common.utils.Logger;
 import common.utils.MessageParser;
-import server.Globals;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

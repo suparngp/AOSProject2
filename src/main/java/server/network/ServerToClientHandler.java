@@ -134,41 +134,55 @@ public class ServerToClientHandler extends Thread {
                             && node.isObjectLocked(acc.getId(), accountMessage.getClientId())
                             && node.getDataAccess().getAccount(acc.getId()) != null){
 
-                        acc = node.getDataAccess().createAccount(acc);
-                        toBeSent = MessageParser.createWrapper(acc, MessageType.CREATE_OBJ_SUCCESS);
+                        acc = node.getDataAccess().updateAccount(acc);
+                        accountMessage.setAccount(acc);
+
+                        toBeSent = MessageParser.createWrapper(accountMessage, MessageType.CREATE_OBJ_SUCCESS);
                     }
                     else{
-                        toBeSent = MessageParser.createWrapper(acc, MessageType.CREATE_OBJ_FAILED);
+                        toBeSent = MessageParser.createWrapper(accountMessage, MessageType.CREATE_OBJ_FAILED);
                     }
                     dos.writeUTF(toBeSent);
                     break;
 
                 //read the object if it exists and is not locked by someone else.
                 case READ_OBJ_REQ:
-                    Logger.debug("CREATE_OBJ_REQ Received");
+                    Logger.debug("READ_OBJ_REQ Received");
                     req = (ObjectReq) MessageParser.deserializeObject(wrapper.getMessageBody());
 
                     locked = node.isObjectLocked(req.getObjectId(), req.getClientId());
                     acc = node.getDataAccess().getAccount(req.getObjectId());
 
+                    accountMessage = new AccountMessage();
+                    accountMessage.setServerId(req.getServerId());
+                    accountMessage.setClientId(req.getClientId());
+                    accountMessage.setAccount(acc);
+
                     if(!locked && acc != null){
-                        toBeSent = MessageParser.createWrapper(acc, MessageType.CREATE_OBJ_SUCCESS);
+                        toBeSent = MessageParser.createWrapper(accountMessage, MessageType.READ_OBJ_SUCCESS);
                     }
                     else{
-                        toBeSent = MessageParser.createWrapper(acc, MessageType.CREATE_OBJ_FAILED);
+                        toBeSent = MessageParser.createWrapper(accountMessage, MessageType.READ_OBJ_FAILED);
                     }
                     dos.writeUTF(toBeSent);
                     break;
 
                 //delete the object if it exists and is locked someone else.
                 case DELETE_OBJ_REQ:
-                    Logger.debug("CREATE_OBJ_REQ Received");
+                    Logger.debug("DELETE_OBJ_REQ Received");
                     req = (ObjectReq) MessageParser.deserializeObject(wrapper.getMessageBody());
+
+
                     if(node.isObjectLocked(req.getObjectId(), req.getClientId())
                             && node.getDataAccess().getAccount(req.getObjectId()) != null){
 
                         acc = node.getDataAccess().removeAccount(req.getObjectId());
-                        toBeSent = MessageParser.createWrapper(acc, MessageType.DELETE_OBJ_SUCCESS);
+                        accountMessage = new AccountMessage();
+                        accountMessage.setServerId(req.getServerId());
+                        accountMessage.setClientId(req.getClientId());
+                        accountMessage.setAccount(acc);
+
+                        toBeSent = MessageParser.createWrapper(accountMessage, MessageType.DELETE_OBJ_SUCCESS);
                     }
                     else{
                         toBeSent = MessageParser.createWrapper(req, MessageType.DELETE_OBJ_FAILED);

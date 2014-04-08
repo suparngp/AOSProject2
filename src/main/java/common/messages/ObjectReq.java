@@ -92,4 +92,13 @@ public class ObjectReq  implements Serializable{
         result = 31 * result + clientId;
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "ObjectReq{" +
+                "objectId='" + objectId + '\'' +
+                ", serverId=" + serverId +
+                ", clientId=" + clientId +
+                '}';
+    }
 }

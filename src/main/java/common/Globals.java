@@ -69,4 +69,14 @@ public class Globals {
             Logger.error("Unable to read the server configuration file.");
         }
     }
-}
+
+
+
+
+
+    /**
+     * Client Globals
+     * */
+
+
+ }

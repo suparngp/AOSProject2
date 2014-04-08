@@ -11,6 +11,15 @@ public class AccountMessage implements Serializable{
     private int clientId;
     private Account account;
 
+    public AccountMessage(){
+
+    }
+    public AccountMessage(int serverId, int clientId, Account account) {
+        this.serverId = serverId;
+        this.clientId = clientId;
+        this.account = account;
+    }
+
     /**
      * Sets new account.
      *
@@ -85,5 +94,14 @@ public class AccountMessage implements Serializable{
         result = 31 * result + clientId;
         result = 31 * result + (account != null ? account.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "AccountMessage{" +
+                "serverId=" + serverId +
+                ", clientId=" + clientId +
+                ", account=" + account +
+                '}';
     }
 }
