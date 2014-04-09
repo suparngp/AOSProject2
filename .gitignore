@@ -12,3 +12,13 @@
 hs_err_pid*
 
 server/data.txt
+
+.idea/.name
+
+*.xml
+
+target/maven-archiver/pom.properties
+
+*.lst
+
+*.txt
