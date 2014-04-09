@@ -137,10 +137,10 @@ public class ServerToClientHandler extends Thread {
                         acc = node.getDataAccess().updateAccount(acc);
                         accountMessage.setAccount(acc);
 
-                        toBeSent = MessageParser.createWrapper(accountMessage, MessageType.CREATE_OBJ_SUCCESS);
+                        toBeSent = MessageParser.createWrapper(accountMessage, MessageType.UPDATE_OBJ_SUCCESS);
                     }
                     else{
-                        toBeSent = MessageParser.createWrapper(accountMessage, MessageType.CREATE_OBJ_FAILED);
+                        toBeSent = MessageParser.createWrapper(accountMessage, MessageType.UPDATE_OBJ_FAILED);
                     }
                     dos.writeUTF(toBeSent);
                     break;
