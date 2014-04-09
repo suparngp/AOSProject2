@@ -122,38 +122,5 @@ class CreateForm {
         } catch (Exception e) {
             Logger.error("Unable to send Create Object Permission", e);
         }
-
-
-        //getObjectHash(){}
-//        id = this.parent.txtId.getText();
-//        ownerName = this.parent.txtName.getText();
-//        String bal = this.parent.txtOpbal.getText();
-//        openingBalance = Double.parseDouble(bal);
-//        Account account = new Account(id);
-//        account.setId(id);
-//        account.setOwnerName(ownerName);
-//        account.setOpeningBalance(openingBalance);
-//        account.setCurrentBalance(openingBalance);
-//        createdAt = new Date();
-//        account.setCreatedAt(createdAt);
-//        account.setUpdatedAt(createdAt);
-//        //seek permission and create object
-//
-//        ObjectCreate obj = new ObjectCreate(id, ownerName, account, "create");
-//
-//        if (obj.seekPermission(id)) {
-//            this.parent.lblMessage.setText("Object Created");
-//            this.parent.lblAccountId.setVisible(false);
-//            this.parent.lblName.setVisible(false);
-//            this.parent.lblOpeningBalance.setVisible(false);
-//            this.parent.txtId.setVisible(false);
-//            this.parent.txtName.setVisible(false);
-//            this.parent.txtOpbal.setVisible(false);
-//            this.parent.btnSubmit.setVisible(false);
-//        }
-
-        //on creating change visibility of fields if needed and display message
-
-
     }
 }

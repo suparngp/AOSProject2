@@ -1,1 +1,2 @@
+{"id":"12345678","ownerName":"Nimisha","openingBalance":100000.0,"currentBalance":100000.0,"createdAt":"Apr 7, 2014 8:45:04 PM","updatedAt":"Apr 7, 2014 8:45:04 PM"}
 {"id":"123456789","ownerName":"Nimisha","openingBalance":100000.0,"currentBalance":100000.0,"createdAt":"Apr 7, 2014 8:38:09 PM","updatedAt":"Apr 7, 2014 8:38:09 PM"}
