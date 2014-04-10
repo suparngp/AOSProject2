@@ -52,7 +52,7 @@ public class Gui extends JFrame{
         buttongroup.add(Read);
         Read.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                new ReadForm();
+                new ReadForm(myself);
             }});
 
         Update = new JRadioButton("UPDATE");

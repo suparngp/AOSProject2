@@ -23,7 +23,7 @@ class CreateForm {
 
     String id, ownerName;
     Double openingBalance;
-    Date createdAt;
+
     private Gui parent;
 
     public CreateForm(Gui gui) {
@@ -31,11 +31,11 @@ class CreateForm {
         gui.lblAccountId.setVisible(true);
         gui.lblName.setVisible(true);
         gui.lblOpeningBalance.setVisible(true);
-        //lblCreatedAt.setVisible(true);
+
         gui.txtId.setVisible(true);
         gui.txtName.setVisible(true);
         gui.txtOpbal.setVisible(true);
-        //txtCreated.setVisible(true);
+
         gui.btnSubmit.setVisible(true);
         gui.lblMessage.setText("Enter details to create object");
 
@@ -119,8 +119,24 @@ class CreateForm {
             dis.close();
             dos.close();
 
+
+
         } catch (Exception e) {
             Logger.error("Unable to send Create Object Permission", e);
         }
+
+
+        //on creating change visibility of fields if needed and display message
+
+//        this.parent.lblAccountId.setVisible(false);
+//        this.parent.lblName.setVisible(false);
+//        this.parent.lblOpeningBalance.setVisible(false);
+//
+//        this.parent.txtId.setVisible(false);
+//        this.parent.txtName.setVisible(false);
+//        this.parent.txtOpbal.setVisible(false);
+//
+//        this.parent.btnSubmit.setVisible(false);
+
     }
 }
