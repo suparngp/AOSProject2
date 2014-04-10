@@ -1,6 +1,6 @@
 package client;
 
-import client.forms.Gui;
+import client.clientNetwork.ClientNode;
 import common.utils.Logger;
 
 import java.util.Arrays;
@@ -18,6 +18,9 @@ public class Main {
         }
 
         int nodeId = Integer.parseInt(args[0]);
-        Gui gui = new Gui(nodeId);
+        ClientNode node = new ClientNode(nodeId);
+        InputProcessor inputProcessor = new InputProcessor(node);
+        inputProcessor.displayWelcomeScreen();
+        inputProcessor.getMainMenuInput();
     }
 }

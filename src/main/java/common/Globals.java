@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class Globals {
     public static String dataFileName = "data.txt";
-    public static int serverCount = 1;
+    public static int serverCount = 2;
     public static int serverChannelPort = 9999;
     public static int discoveredServers = 0;
     public static List<Integer> discoveryMessages = new ArrayList<Integer>();
@@ -23,16 +23,16 @@ public class Globals {
     public static HashMap<Integer, String> serverHostNames = new HashMap<>();
     public static HashMap<Integer, Integer> serverPortNums = new HashMap<>();
 
-    public static HashMap<Integer, Integer>serverClientPortNums = new HashMap<>();
+    public static HashMap<Integer, Integer> serverClientPortNums = new HashMap<>();
 
-    static{
+    static {
         try {
             BufferedReader br = new BufferedReader(new FileReader(new File("server.config")));
             String input = br.readLine();
-            while(input != null){
+            while (input != null) {
                 String[] tokens = input.split(",");
 
-                if(tokens.length != 3){
+                if (tokens.length != 3) {
                     Logger.error("Unknown server configuration file format", input);
                     System.exit(-1);
                 }
@@ -48,11 +48,11 @@ public class Globals {
             br.close();
 
             br = new BufferedReader(new FileReader(new File("server-client.config")));
-             input = br.readLine();
-            while(input != null){
+            input = br.readLine();
+            while (input != null) {
                 String[] tokens = input.split(",");
 
-                if(tokens.length != 3){
+                if (tokens.length != 3) {
                     Logger.error("Unknown server configuration file format", input);
                     System.exit(-1);
                 }
@@ -63,15 +63,10 @@ public class Globals {
                 input = br.readLine();
             }
 
-        }
-
-        catch(Exception e){
+        } catch (Exception e) {
             Logger.error("Unable to read the server configuration file.");
         }
     }
-
-
-
 
 
     /**
@@ -79,4 +74,4 @@ public class Globals {
      * */
 
 
- }
+}

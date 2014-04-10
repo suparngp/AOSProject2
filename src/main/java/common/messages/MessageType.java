@@ -80,5 +80,13 @@ public enum MessageType implements Serializable{
     READ_OBJ_FAILED,
     DELETE_OBJ_REQ,
     DELETE_OBJ_SUCCESS,
-    DELETE_OBJ_FAILED
-}
+    DELETE_OBJ_FAILED,
+
+    /**
+     * Prepared Messages
+     * */
+    CREATE_OBJECT_PREPARE,
+    CREATE_OBJECT_PREPARE_ACK,
+    CREATE_OBJECT_COMMIT,
+    CREATE_OBJECT_ABORT,
+ }

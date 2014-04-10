@@ -37,7 +37,7 @@ public class ConnectionManager {
         try{
             Set<Integer> serverIds = Globals.serverHostNames.keySet();
             HashSet<Integer> discoveredNodes = new HashSet<>();
-
+            Logger.debug(serverIds);
 
             while(true){
                 if(Globals.serverCount < 2){

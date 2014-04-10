@@ -12,7 +12,6 @@ import java.awt.event.ActionListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
-import java.util.Date;
 
 /**
  * @author Nimisha

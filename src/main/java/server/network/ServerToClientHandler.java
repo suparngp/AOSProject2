@@ -71,7 +71,9 @@ public class ServerToClientHandler extends Thread {
 
                     Logger.debug("SEEK_UPDATE_PERMISSION Received");
                     req = (ObjectReq) MessageParser.deserializeObject(wrapper.getMessageBody());
+                    Logger.debug(this.node.getLockedObjects());
                     boolean locked = node.lockObject(req.getObjectId(), req.getClientId());
+                    Logger.debug("Locked", locked);
                     toBeSent = locked
                             ? MessageParser.createWrapper(req, MessageType.GRANT_UPDATE_PERMISSION)
                             : MessageParser.createWrapper(req, MessageType.FAILED_UPDATE_PERMISSION);
@@ -84,7 +86,7 @@ public class ServerToClientHandler extends Thread {
                     req = (ObjectReq) MessageParser.deserializeObject(wrapper.getMessageBody());
 
                     locked = node.isObjectLocked(req.getObjectId(), req.getClientId());
-                    toBeSent = !locked
+                    toBeSent = !locked && node.getDataAccess().getAccount(req.getObjectId()) != null
                             ? MessageParser.createWrapper(req, MessageType.GRANT_READ_PERMISSION)
                             : MessageParser.createWrapper(req, MessageType.FAILED_READ_PERMISSION);
                     dos.writeUTF(toBeSent);
@@ -142,6 +144,7 @@ public class ServerToClientHandler extends Thread {
                     else{
                         toBeSent = MessageParser.createWrapper(accountMessage, MessageType.UPDATE_OBJ_FAILED);
                     }
+                    node.freeObject(acc.getId(), accountMessage.getClientId());
                     dos.writeUTF(toBeSent);
                     break;
 
@@ -188,6 +191,7 @@ public class ServerToClientHandler extends Thread {
                         toBeSent = MessageParser.createWrapper(req, MessageType.DELETE_OBJ_FAILED);
                     }
                     dos.writeUTF(toBeSent);
+                    node.freeObject(req.getObjectId(), req.getClientId());
                     break;
             }
 

@@ -198,14 +198,31 @@ public class Node extends Thread{
      */
     public synchronized boolean lockObject (String objectId, int clientId){
         Account acc = this.dataAccess.getAccount(objectId);
+        Logger.debug("Account found", acc);
         if(acc == null
                 || (this.lockedObjects.get(objectId) != null
                 && this.lockedObjects.get(objectId) != clientId)){
             return false;
         }
+        else if(this.lockedObjects.get(objectId) == null){
+            lockedObjects.put(objectId, clientId);
+            return true;
+        }
+        else if(this.lockedObjects.get(objectId) == clientId){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 
-        lockedObjects.put(objectId, clientId);
-        return false;
+    public synchronized boolean freeObject(String objectId, int clientId){
+        if(this.lockedObjects.get(objectId) == null
+                || this.lockedObjects.get(objectId) != clientId){
+            return false;
+        }
+        this.lockedObjects.remove(objectId);
+        return true;
     }
 
     /**

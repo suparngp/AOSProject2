@@ -61,7 +61,7 @@ public class Gui extends JFrame{
         buttongroup.add(Update);
         Update.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                new UpdateForm();
+                new UpdateForm(myself);
             }});
 
         Delete = new JRadioButton("DELETE");

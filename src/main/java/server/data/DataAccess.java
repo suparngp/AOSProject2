@@ -81,11 +81,14 @@ public class DataAccess extends Thread {
             throw new Exception("Account not found " + updatedAccount.getId());
         }
         Date date = new Date();
-        updatedAccount.setUpdatedAt(date);
+        oldAccount.setUpdatedAt(date);
+        oldAccount.setCurrentBalance(updatedAccount.getCurrentBalance());
+        oldAccount.setOpeningBalance(updatedAccount.getOpeningBalance());
+        oldAccount.setOwnerName(updatedAccount.getOwnerName());
 
-        this.accountList.add(updatedAccount);
+        this.accountList.add(oldAccount);
         this.flushLatestAccountData();
-        return updatedAccount;
+        return oldAccount;
     }
 
 

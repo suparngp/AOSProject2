@@ -22,3 +22,5 @@ target/maven-archiver/pom.properties
 *.lst
 
 *.txt
+
+data.txt
