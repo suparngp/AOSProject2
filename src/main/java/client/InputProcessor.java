@@ -107,7 +107,7 @@ public class InputProcessor {
         String objectId = sc.nextLine();
 
         try{
-            Account acc = this.clientNode.read(objectId);
+            Account acc = this.clientNode.readMultiServer(objectId);
             if(acc == null){
                 throw new Exception("Object was not found");
             }
@@ -153,7 +153,7 @@ public class InputProcessor {
             currentBalance = Double.parseDouble(input.trim());
         }
         try {
-            acc = this.clientNode.update(objectId, name, openingBalance, currentBalance);
+            acc = this.clientNode.updateMultiServer(objectId, name, openingBalance, currentBalance);
             if(acc == null){
                 throw new Exception("Unable to update object on server");
             }
@@ -172,7 +172,7 @@ public class InputProcessor {
         String objectId = sc.nextLine();
 
         try{
-            Account acc = this.clientNode.delete(objectId);
+            Account acc = this.clientNode.deleteMultiServer(objectId);
             if(acc == null){
                 throw new Exception("Object was not found");
             }

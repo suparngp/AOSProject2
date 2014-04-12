@@ -275,16 +275,18 @@ public class ServerToClientHandler extends Thread {
                     req = (ObjectReq) MessageParser.deserializeObject(wrapper.getMessageBody());
 
                     oldAccount = node.getDataAccess().getAccount(req.getObjectId());
+
                     if(node.isObjectLocked(req.getObjectId(), req.getClientId())
                             && oldAccount != null){
 
                         //add this account to the temporary account list.
+                        node.getTemporaryData().add(oldAccount);
 
-                        acc = node.getDataAccess().removeAccount(req.getObjectId());
+//                        acc = node.getDataAccess().removeAccount(req.getObjectId());
                         accountMessage = new AccountMessage();
                         accountMessage.setServerId(req.getServerId());
                         accountMessage.setClientId(req.getClientId());
-                        accountMessage.setAccount(acc);
+                        accountMessage.setAccount(oldAccount);
 
                         toBeSent = MessageParser.createWrapper(accountMessage, MessageType.DELETE_OBJ_SUCCESS);
                     }
@@ -292,7 +294,7 @@ public class ServerToClientHandler extends Thread {
                         toBeSent = MessageParser.createWrapper(req, MessageType.DELETE_OBJ_FAILED);
                     }
                     dos.writeUTF(toBeSent);
-                    node.freeObject(req.getObjectId(), req.getClientId());
+
                     break;
                 case DELETE_OBJECT_PREPARE:
                     Logger.debug("DELETE_OBJECT_PREPARE Received");
@@ -309,7 +311,7 @@ public class ServerToClientHandler extends Thread {
                         node.addToPreparedData(temp);
                     }
                     dos.writeUTF(toBeSent);
-
+                    node.freeObject(req.getObjectId(), req.getClientId());
                     break;
 
                 case DELETE_OBJECT_ABORT:
@@ -325,6 +327,7 @@ public class ServerToClientHandler extends Thread {
                         node.getPreparedAccess().removeAccount(temp.getId());
                     }
                     Logger.debug(node.getTemporaryData());
+                    node.freeObject(req.getObjectId(), req.getClientId());
                     break;
 
                 //TODO add the commit
@@ -333,9 +336,10 @@ public class ServerToClientHandler extends Thread {
                     req = (ObjectReq)MessageParser.deserializeObject(wrapper.getMessageBody());
                     acc = node.getPreparedAccount(req.getObjectId());
 
-                    node.getDataAccess().updateAccount(acc);
+                    node.getDataAccess().removeAccount(acc.getId());
                     node.getPreparedData().remove(acc);
                     node.getPreparedAccess().removeAccount(acc.getId());
+                    node.freeObject(req.getObjectId(), req.getClientId());
                     break;
             }
 

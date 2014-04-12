@@ -700,6 +700,232 @@ public class ClientNode {
         return acc;
     }
 
+    public Account deleteMultiServer(String id) throws Exception {
+
+        try {
+            ObjectReq req;
+            Account finalAcc = null;
+            //Logger.debug("I am here!");
+            String objectId = id;
+            int clientId = this.getNodeId();
+            int baseServerId = this.computeServerId(objectId);
+            int[] servers = {baseServerId, (baseServerId + 1) % 7, (baseServerId + 2) % 7};
+            DataInputStream dis;
+            DataOutputStream dos;
+            HashSet<Integer> successServers = new HashSet<>();
+            String toBeSent;
+
+            //send the seek delete permission to all the servers
+            int successCounter = 0;
+
+            for (int serverId : servers) {
+                Logger.log("Sending request to server Id", serverId);
+                req = new ObjectReq(objectId, serverId, clientId);
+                toBeSent = MessageParser.createWrapper(req, MessageType.SEEK_DELETE_PERMISSION);
+
+                //create the socket
+                try {
+                    Socket socket = sendMessage(toBeSent, serverId, false);
+                    //suppose socket is connected to the server.
+                    dis = new DataInputStream(socket.getInputStream());
+                    dos = new DataOutputStream(socket.getOutputStream());
+                    dos.flush();
+                    String recMessage = dis.readUTF();
+                    WrapperMessage wrapper = MessageParser.parseMessageJSON(recMessage);
+                    Logger.debug(wrapper.getMessageType());
+                    Logger.debug(MessageParser.deserializeObject(wrapper.getMessageBody()));
+                    dis.close();
+                    dos.close();
+
+                    if (wrapper.getMessageType() == MessageType.GRANT_DELETE_PERMISSION) {
+                        successCounter++;
+                        successServers.add(serverId);
+                    }
+                } catch (Exception e) {
+                    Logger.log("Unable to connect to server ", serverId, e);
+                }
+            }
+            //if less than 2 servers are available, flag error and exit.
+            if (successCounter < 2) {
+                Logger.error("Unable to update object because only " + successCounter + " server(s) is(are) available");
+                successCounter = 0;
+                successServers.clear();
+                return null;
+            }
+
+            HashSet<Integer> step2Servers = new HashSet<>();
+            for (int serverId : successServers) {
+                //AccountMessage accMsg = new AccountMessage(serverId, clientId, acc);
+                req = new ObjectReq(objectId, serverId, clientId);
+                toBeSent = MessageParser.createWrapper(req, MessageType.DELETE_OBJ_REQ);
+                try {
+                    Socket socket = sendMessage(toBeSent, serverId, false);
+                    dis = new DataInputStream(socket.getInputStream());
+                    dos = new DataOutputStream(socket.getOutputStream());
+
+                    //receive reply from server.
+                    //if it is delete success then return the object deleted
+                    String recMessage = dis.readUTF();
+                    WrapperMessage wrapper = MessageParser.parseMessageJSON(recMessage);
+                    Logger.debug(wrapper.getMessageType());
+                    Logger.debug(MessageParser.deserializeObject(wrapper.getMessageBody()));
+                    dis.close();
+                    dos.close();
+                    socket.close();
+
+                    //if returned message is success then return the object
+                    if (wrapper.getMessageType() == MessageType.DELETE_OBJ_SUCCESS) {
+                        AccountMessage accMsg = (AccountMessage) MessageParser
+                                .deserializeObject(wrapper.getMessageBody());
+                        finalAcc = accMsg.getAccount();
+                        successCounter++;
+                        step2Servers.add(serverId);
+                    }
+                } catch (Exception e) {
+                    Logger.error("Unable to send update req to a previously working server!", e);
+                }
+
+            }
+
+
+            //check if the #step1 servers is equal to #step2 servers, else, do an abort.
+            if (step2Servers.size() != successServers.size()) {
+                Logger.error("Some of the step 1 servers were unable to delete object", successServers, step2Servers
+                        , "Sending abort to other servers");
+
+                for (int serverId : step2Servers) {
+                    req = new ObjectReq(objectId, serverId, clientId);
+                    toBeSent = MessageParser.createWrapper(req, MessageType.DELETE_OBJECT_ABORT);
+                    sendMessage(toBeSent, serverId, true);
+                }
+                return null;
+            }
+
+            //all the objects have been updated in temp space. send the prepare messages
+            successServers.clear();
+            Logger.log("Object has been deleted in temporary space, Now sending the prepare messages");
+            for (int serverId : step2Servers) {
+                req = new ObjectReq(objectId, serverId, clientId);
+                toBeSent = MessageParser.createWrapper(req, MessageType.DELETE_OBJECT_PREPARE);
+                Socket socket = sendMessage(toBeSent, serverId, false);
+                if (socket != null) {
+                    dis = new DataInputStream(socket.getInputStream());
+                    String rec = dis.readUTF();
+                    if (MessageParser.parseMessageJSON(rec).getMessageType() == MessageType.DELETE_OBJECT_PREPARE_ACK) {
+                        successServers.add(serverId);
+                    }
+                }
+            }
+            Logger.log("All possible Prepared messages sent. Waiting for acks");
+            //again check if the success servers are less than the ones which updated the temp object
+            //send abort
+            if (step2Servers.size() != successServers.size()) {
+                Logger.error("Some of the servers were unable to send Prepare Ack ", step2Servers, successServers
+                        , "Sending abort to other servers");
+
+                for (int serverId : step2Servers) {
+                    req = new ObjectReq(objectId, serverId, clientId);
+                    toBeSent = MessageParser.createWrapper(req, MessageType.DELETE_OBJECT_ABORT);
+                    sendMessage(toBeSent, serverId, true);
+                }
+                return null;
+            }
+
+            //all the servers have sent the prepare acks, send the commit message.
+            Logger.log("Received all the prepared acks. Sending commit.");
+            for (int serverId : step2Servers) {
+                req = new ObjectReq(objectId, serverId, clientId);
+                toBeSent = MessageParser.createWrapper(req, MessageType.DELETE_OBJECT_COMMIT);
+                sendMessage(toBeSent, serverId, true);
+            }
+            return finalAcc;
+        } catch (Exception e) {
+            Logger.error("Error deleting object", e);
+            return null;
+        }
+
+
+    }
+
+
+    public Account readMultiServer(String id) throws Exception {
+        Account finalAcc = null;
+        try {
+            ObjectReq req;
+            //Logger.debug("I am here!");
+            String objectId = id;
+            int clientId = this.getNodeId();
+            int baseServerId = this.computeServerId(objectId);
+            int[] servers = {baseServerId, (baseServerId + 1) % 7, (baseServerId + 2) % 7};
+            DataInputStream dis;
+            DataOutputStream dos;
+            HashSet<Integer> successServers = new HashSet<>();
+            String toBeSent;
+
+            //send the seek read permission to all the servers
+            for (int serverId : servers) {
+                Logger.log("Sending request to server Id", serverId);
+                req = new ObjectReq(objectId, serverId, clientId);
+                toBeSent = MessageParser.createWrapper(req, MessageType.SEEK_READ_PERMISSION);
+
+                //create the socket
+                try {
+                    Socket socket = sendMessage(toBeSent, serverId, false);
+                    //suppose socket is connected to the server.
+                    dis = new DataInputStream(socket.getInputStream());
+                    dos = new DataOutputStream(socket.getOutputStream());
+                    dos.flush();
+                    String recMessage = dis.readUTF();
+                    WrapperMessage wrapper = MessageParser.parseMessageJSON(recMessage);
+                    Logger.debug(wrapper.getMessageType());
+                    Logger.debug(MessageParser.deserializeObject(wrapper.getMessageBody()));
+                    dis.close();
+                    dos.close();
+
+                    if (wrapper.getMessageType() == MessageType.GRANT_READ_PERMISSION) {
+                        toBeSent = MessageParser.createWrapper(req, MessageType.READ_OBJ_REQ);
+
+                        socket = sendMessage(toBeSent, serverId, false);
+                        //suppose socket is connected to the server.
+                        dis = new DataInputStream(socket.getInputStream());
+                        dos = new DataOutputStream(socket.getOutputStream());
+                        dos.writeUTF(toBeSent);
+                        dos.flush();
+
+                        //read reply from server;
+                        //server returns requested object
+
+                        String receivedString = dis.readUTF();
+                        wrapper = MessageParser.parseMessageJSON(receivedString);
+                        Logger.debug(wrapper.getMessageType());
+                        Logger.debug(MessageParser.deserializeObject(wrapper.getMessageBody()));
+                        dis.close();
+                        dos.close();
+                        if (wrapper.getMessageType() == MessageType.READ_OBJ_SUCCESS) {
+                            //if returned message is success then return the object
+                            AccountMessage accMsg = (AccountMessage) MessageParser
+                                    .deserializeObject(wrapper.getMessageBody());
+
+                            finalAcc = accMsg.getAccount();
+                            break;
+                        } else {
+                            Logger.error("Account doesn't exist");
+                        }
+                    }
+                } catch (Exception e) {
+                    Logger.log("Unable to connect to server ", serverId, e);
+                }
+            }
+
+            if(finalAcc == null){
+                Logger.debug("Unable to find account.");
+            }
+        } catch (Exception e) {
+            Logger.error("Error deleting object", e);
+        }
+
+        return finalAcc;
+    }
 
     /**
      * Sends a message to the given server

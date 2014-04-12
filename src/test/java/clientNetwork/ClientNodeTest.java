@@ -116,4 +116,29 @@ public class ClientNodeTest {
         System.out.println(acc);
     }
 
+    /**
+     * Method: updateMultiServer(String id, String ownerName, Double opBal, Double curBal)
+     */
+    @Test
+    public void testDeleteMultiServer() throws Exception {
+        ClientNode node = new ClientNode(0);
+        String objectId = "1397191331147-0-1";
+
+
+        Account acc = node.deleteMultiServer(objectId);
+        System.out.println(acc);
+    }
+
+    /**
+     * Method: updateMultiServer(String id, String ownerName, Double opBal, Double curBal)
+     */
+    @Test
+    public void testReadMultiServer() throws Exception {
+        ClientNode node = new ClientNode(0);
+        String objectId = "1397190976245-0-1";
+
+
+        Account acc = node.readMultiServer(objectId);
+        System.out.println(acc);
+    }
 } 
