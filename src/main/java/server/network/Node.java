@@ -7,6 +7,7 @@ import server.data.DataAccess;
 import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Represents the server node
@@ -22,6 +23,10 @@ public class Node extends Thread{
     private HashMap<String, Integer> lockedObjects;
     private boolean inProcess;
     private DataAccess dataAccess;
+    private DataAccess preparedAccess;
+    private HashSet<Account> temporaryData;
+    private HashSet<Account> preparedData;
+
     /**
      * Creates a new node
      * @param nodeId the server's id 0-6
@@ -37,8 +42,13 @@ public class Node extends Thread{
         this.serverToClientChannel = new ServerToClientChannel(this);
         this.lockedObjects = new HashMap<>();
         this.inProcess = false;
-        this.dataAccess = new DataAccess();
+        this.dataAccess = new DataAccess(this.nodeId + "_data.txt");
+        this.temporaryData = new HashSet<>();
+        this.preparedData = new HashSet<>();
+        this.preparedAccess = new DataAccess(this.nodeId + "_prepared_data.txt");
+        init();
         Logger.log("Created Node ", this);
+
     }
 
     /**
@@ -286,5 +296,86 @@ public class Node extends Thread{
      */
     public void setLockedObjects(HashMap<String, Integer> lockedObjects) {
         this.lockedObjects = lockedObjects;
+    }
+
+    /**
+     * Gets temporaryData.
+     *
+     * @return Value of temporaryData.
+     */
+    public HashSet<Account> getTemporaryData() {
+        return temporaryData;
+    }
+
+    /**
+     * Sets new temporaryData.
+     *
+     * @param temporaryData New value of temporaryData.
+     */
+    public void setTemporaryData(HashSet<Account> temporaryData) {
+        this.temporaryData = temporaryData;
+    }
+
+    public Account getTemporaryAccount(String objectId){
+        for(Account acc: temporaryData){
+            if(acc.getId().equals(objectId)){
+                return acc;
+            }
+        }
+        return null;
+    }
+
+    public Account getPreparedAccount(String objectId){
+        for(Account acc: preparedData){
+            if(acc.getId().equals(objectId)){
+                return acc;
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * Sets new preparedData.
+     *
+     * @param preparedData New value of preparedData.
+     */
+    public void setPreparedData(HashSet<Account> preparedData) {
+        this.preparedData = preparedData;
+    }
+
+    /**
+     * Gets preparedData.
+     *
+     * @return Value of preparedData.
+     */
+    public HashSet<Account> getPreparedData() {
+        return preparedData;
+    }
+
+    public void addToPreparedData(Account acc) throws Exception{
+        this.preparedAccess.createAccount(acc);
+        this.preparedData.add(acc);
+    }
+    public void init(){
+        this.preparedData.addAll(this.preparedAccess.getAllAccounts());
+    }
+
+    /**
+     * Sets new preparedAccess.
+     *
+     * @param preparedAccess New value of preparedAccess.
+     */
+    public void setPreparedAccess(DataAccess preparedAccess) {
+        this.preparedAccess = preparedAccess;
+    }
+
+    /**
+     * Gets preparedAccess.
+     *
+     * @return Value of preparedAccess.
+     */
+    public DataAccess getPreparedAccess() {
+        return preparedAccess;
     }
 }

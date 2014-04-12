@@ -2,7 +2,6 @@ package server.data;
 
 import com.google.gson.Gson;
 import common.messages.Account;
-import common.Globals;
 import common.utils.Logger;
 
 import java.io.*;
@@ -14,7 +13,7 @@ import java.util.HashSet;
  * Created by suparngupta on 4/4/14.
  */
 public class DataAccess extends Thread {
-    private File dataFile = new File(Globals.dataFileName);
+    private File dataFile;
 
     private HashSet<Account> accountList = new HashSet<Account>();
 
@@ -24,8 +23,9 @@ public class DataAccess extends Thread {
      * Constructor to initialize the data access API.
      * Loads all the records in the memory
      */
-    public DataAccess() {
+    public DataAccess(String fileName) {
         try {
+            dataFile = new File(fileName);
             /**
              * Load all the records in the memory.
              * */
@@ -59,9 +59,9 @@ public class DataAccess extends Thread {
             throw new Exception();
         }
 
-        Date date = new Date();
-        account.setCreatedAt(date);
-        account.setUpdatedAt(date);
+//        Date date = new Date();
+//        account.setCreatedAt(date);
+//        account.setUpdatedAt(date);
         this.accountList.add(account);
         this.flushLatestAccountData();
         return account;

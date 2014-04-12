@@ -104,8 +104,8 @@ public class ServerToClientHandler extends Thread {
                     dos.writeUTF(toBeSent);
                     break;
 
-
                 //create an object is object is valid and doesn't exist in the file
+                //store this object in the temporary file only.
                 case CREATE_OBJ_REQ:
                     Logger.debug("CREATE_OBJ_REQ Received");
                     AccountMessage accountMessage = (AccountMessage)MessageParser
@@ -115,7 +115,9 @@ public class ServerToClientHandler extends Thread {
                     if(checkAccountStructure(acc)
                             && node.getDataAccess().getAccount(acc.getId()) == null){
 
-                        acc = node.getDataAccess().createAccount(acc);
+                        node.getTemporaryData().add(acc);
+
+//                        acc = node.getDataAccess().createAccount(acc);
                         accountMessage.setAccount(acc);
                         toBeSent = MessageParser.createWrapper(accountMessage, MessageType.CREATE_OBJ_SUCCESS);
                     }
@@ -125,27 +127,124 @@ public class ServerToClientHandler extends Thread {
                     dos.writeUTF(toBeSent);
                     break;
 
+
+                case CREATE_OBJECT_PREPARE:
+                    Logger.debug("CREATE_OBJECT_PREPARE Received");
+                    req = (ObjectReq)MessageParser.deserializeObject(wrapper.getMessageBody());
+
+                    Account temp = node.getTemporaryAccount(req.getObjectId());
+
+                    if(temp == null){
+                        toBeSent = MessageParser.createWrapper(req, MessageType.CREATE_OBJ_FAILED);
+                    }
+                    else{
+                        toBeSent = MessageParser.createWrapper(req, MessageType.CREATE_OBJECT_PREPARE_ACK);
+                        node.getTemporaryData().remove(temp);
+                        node.addToPreparedData(temp);
+                    }
+                    dos.writeUTF(toBeSent);
+
+                    break;
+
+                case CREATE_OBJECT_ABORT:
+                    Logger.debug("CREATE_OBJECT_ABORT received");
+                    Logger.debug(node.getTemporaryData());
+                    req = (ObjectReq)MessageParser.deserializeObject(wrapper.getMessageBody());
+                    temp = node.getTemporaryAccount(req.getObjectId());
+                    if(temp != null){
+                        node.getTemporaryData().remove(temp);
+                    }
+                    temp = node.getPreparedAccount(req.getObjectId());
+                    if(temp != null){
+                        node.getPreparedAccess().removeAccount(temp.getId());
+                    }
+                    Logger.debug(node.getTemporaryData());
+                    break;
+
+                //TODO add the commit
+                case CREATE_OBJECT_COMMIT:
+                    Logger.debug("CREATE_OBJECT_COMMIT received");
+                    req = (ObjectReq)MessageParser.deserializeObject(wrapper.getMessageBody());
+                    acc = node.getPreparedAccount(req.getObjectId());
+                    node.getDataAccess().createAccount(acc);
+                    node.getPreparedData().remove(acc);
+                    node.getPreparedAccess().removeAccount(acc.getId());
+                    break;
+
                 //update object if the structure is valid and exists and object is locked by the client
                 case UPDATE_OBJ_REQ:
                     Logger.debug("UPDATE_OBJ_REQ Received");
+
                     accountMessage = (AccountMessage)MessageParser
                             .deserializeObject(wrapper.getMessageBody());
 
                     acc = accountMessage.getAccount();
+                    Account oldAccount = node.getDataAccess().getAccount(acc.getId());
                     if(checkAccountStructure(acc)
                             && node.isObjectLocked(acc.getId(), accountMessage.getClientId())
-                            && node.getDataAccess().getAccount(acc.getId()) != null){
+                            && oldAccount != null){
 
-                        acc = node.getDataAccess().updateAccount(acc);
-                        accountMessage.setAccount(acc);
+                        oldAccount.setOpeningBalance(acc.getOpeningBalance());
+                        oldAccount.setCurrentBalance(acc.getCurrentBalance());
+                        oldAccount.setOwnerName(acc.getOwnerName());
+                        oldAccount.setUpdatedAt(acc.getUpdatedAt());
+                        node.getTemporaryData().add(oldAccount);
 
+//                        acc = node.getDataAccess().createAccount(acc);
+                        accountMessage.setAccount(oldAccount);
                         toBeSent = MessageParser.createWrapper(accountMessage, MessageType.UPDATE_OBJ_SUCCESS);
                     }
                     else{
                         toBeSent = MessageParser.createWrapper(accountMessage, MessageType.UPDATE_OBJ_FAILED);
                     }
-                    node.freeObject(acc.getId(), accountMessage.getClientId());
+
                     dos.writeUTF(toBeSent);
+                    break;
+
+                case UPDATE_OBJECT_PREPARE:
+                    Logger.debug("UPDATE_OBJECT_PREPARE Received");
+                    req = (ObjectReq)MessageParser.deserializeObject(wrapper.getMessageBody());
+
+                    temp = node.getTemporaryAccount(req.getObjectId());
+
+                    if(temp == null){
+                        toBeSent = MessageParser.createWrapper(req, MessageType.UPDATE_OBJ_FAILED);
+                    }
+                    else{
+                        toBeSent = MessageParser.createWrapper(req, MessageType.UPDATE_OBJECT_PREPARE_ACK);
+                        node.getTemporaryData().remove(temp);
+                        node.addToPreparedData(temp);
+                    }
+                    dos.writeUTF(toBeSent);
+                    node.freeObject(req.getObjectId(), req.getClientId());
+                    break;
+
+                case UPDATE_OBJECT_ABORT:
+                    Logger.debug("UPDATE_OBJECT_ABORT received");
+                    Logger.debug(node.getTemporaryData());
+                    req = (ObjectReq)MessageParser.deserializeObject(wrapper.getMessageBody());
+                    temp = node.getTemporaryAccount(req.getObjectId());
+                    if(temp != null){
+                        node.getTemporaryData().remove(temp);
+                    }
+                    temp = node.getPreparedAccount(req.getObjectId());
+                    if(temp != null){
+                        node.getPreparedAccess().removeAccount(temp.getId());
+                    }
+                    Logger.debug(node.getTemporaryData());
+                    node.freeObject(req.getObjectId(), req.getClientId());
+                    break;
+
+                //TODO add the commit
+                case UPDATE_OBJECT_COMMIT:
+                    Logger.debug("UPDATE_OBJECT_COMMIT received");
+                    req = (ObjectReq)MessageParser.deserializeObject(wrapper.getMessageBody());
+                    acc = node.getPreparedAccount(req.getObjectId());
+
+                    node.getDataAccess().updateAccount(acc);
+                    node.getPreparedData().remove(acc);
+                    node.getPreparedAccess().removeAccount(acc.getId());
+                    node.freeObject(acc.getId(), req.getClientId());
                     break;
 
                 //read the object if it exists and is not locked by someone else.
@@ -175,9 +274,11 @@ public class ServerToClientHandler extends Thread {
                     Logger.debug("DELETE_OBJ_REQ Received");
                     req = (ObjectReq) MessageParser.deserializeObject(wrapper.getMessageBody());
 
-
+                    oldAccount = node.getDataAccess().getAccount(req.getObjectId());
                     if(node.isObjectLocked(req.getObjectId(), req.getClientId())
-                            && node.getDataAccess().getAccount(req.getObjectId()) != null){
+                            && oldAccount != null){
+
+                        //add this account to the temporary account list.
 
                         acc = node.getDataAccess().removeAccount(req.getObjectId());
                         accountMessage = new AccountMessage();
@@ -192,6 +293,49 @@ public class ServerToClientHandler extends Thread {
                     }
                     dos.writeUTF(toBeSent);
                     node.freeObject(req.getObjectId(), req.getClientId());
+                    break;
+                case DELETE_OBJECT_PREPARE:
+                    Logger.debug("DELETE_OBJECT_PREPARE Received");
+                    req = (ObjectReq)MessageParser.deserializeObject(wrapper.getMessageBody());
+
+                    temp = node.getTemporaryAccount(req.getObjectId());
+
+                    if(temp == null){
+                        toBeSent = MessageParser.createWrapper(req, MessageType.DELETE_OBJ_FAILED);
+                    }
+                    else{
+                        toBeSent = MessageParser.createWrapper(req, MessageType.DELETE_OBJECT_PREPARE_ACK);
+                        node.getTemporaryData().remove(temp);
+                        node.addToPreparedData(temp);
+                    }
+                    dos.writeUTF(toBeSent);
+
+                    break;
+
+                case DELETE_OBJECT_ABORT:
+                    Logger.debug("DELETE_OBJECT_ABORT received");
+                    Logger.debug(node.getTemporaryData());
+                    req = (ObjectReq)MessageParser.deserializeObject(wrapper.getMessageBody());
+                    temp = node.getTemporaryAccount(req.getObjectId());
+                    if(temp != null){
+                        node.getTemporaryData().remove(temp);
+                    }
+                    temp = node.getPreparedAccount(req.getObjectId());
+                    if(temp != null){
+                        node.getPreparedAccess().removeAccount(temp.getId());
+                    }
+                    Logger.debug(node.getTemporaryData());
+                    break;
+
+                //TODO add the commit
+                case DELETE_OBJECT_COMMIT:
+                    Logger.debug("DELETE_OBJECT_COMMIT received");
+                    req = (ObjectReq)MessageParser.deserializeObject(wrapper.getMessageBody());
+                    acc = node.getPreparedAccount(req.getObjectId());
+
+                    node.getDataAccess().updateAccount(acc);
+                    node.getPreparedData().remove(acc);
+                    node.getPreparedAccess().removeAccount(acc.getId());
                     break;
             }
 

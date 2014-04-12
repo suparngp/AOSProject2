@@ -93,7 +93,7 @@ public class InputProcessor {
 
         currentBalance = openingBalance;
         try {
-            Account acc = this.clientNode.create(objectId, name, openingBalance, currentBalance);
+            Account acc = this.clientNode.createMultiServer(objectId, name, openingBalance, currentBalance);
             Logger.log("Object created", acc);
         } catch (Exception e) {
             Logger.error("Unable to create object", e);

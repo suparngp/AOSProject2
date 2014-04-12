@@ -87,6 +87,24 @@ public enum MessageType implements Serializable{
      * */
     CREATE_OBJECT_PREPARE,
     CREATE_OBJECT_PREPARE_ACK,
-    CREATE_OBJECT_COMMIT,
+    UPDATE_OBJECT_PREPARE,
+    UPDATE_OBJECT_PREPARE_ACK,
+    DELETE_OBJECT_PREPARE,
+    DELETE_OBJECT_PREPARE_ACK,
+
+    /**
+     * Abort messages
+     * */
+
     CREATE_OBJECT_ABORT,
+    UPDATE_OBJECT_ABORT,
+    DELETE_OBJECT_ABORT,
+
+    /**
+     * Commit Messages
+     * */
+    CREATE_OBJECT_COMMIT,
+    UPDATE_OBJECT_COMMIT,
+    DELETE_OBJECT_COMMIT,
+
  }
