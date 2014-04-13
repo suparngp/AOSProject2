@@ -446,6 +446,12 @@ public class ClientNode {
             if (successCounter < 2) {
                 Logger.error("Unable to create object because only " + successCounter + " server(s) is(are) available");
                 successCounter = 0;
+
+                for (int serverId : successServers) {
+                    req = new ObjectReq(objectId, serverId, clientId);
+                    toBeSent = MessageParser.createWrapper(req, MessageType.CREATE_OBJECT_ABORT);
+                    sendMessage(toBeSent, serverId, true);
+                }
                 successServers.clear();
                 return null;
             }
@@ -601,6 +607,11 @@ public class ClientNode {
             if (successCounter < 2) {
                 Logger.error("Unable to update object because only " + successCounter + " server(s) is(are) available");
                 successCounter = 0;
+                for (int serverId : successServers) {
+                    req = new ObjectReq(objectId, serverId, clientId);
+                    toBeSent = MessageParser.createWrapper(req, MessageType.UPDATE_OBJECT_ABORT);
+                    sendMessage(toBeSent, serverId, true);
+                }
                 successServers.clear();
                 return null;
             }
@@ -749,6 +760,11 @@ public class ClientNode {
             if (successCounter < 2) {
                 Logger.error("Unable to update object because only " + successCounter + " server(s) is(are) available");
                 successCounter = 0;
+                for (int serverId : successServers) {
+                    req = new ObjectReq(objectId, serverId, clientId);
+                    toBeSent = MessageParser.createWrapper(req, MessageType.DELETE_OBJECT_ABORT);
+                    sendMessage(toBeSent, serverId, true);
+                }
                 successServers.clear();
                 return null;
             }
