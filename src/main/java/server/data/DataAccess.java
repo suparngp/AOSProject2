@@ -5,8 +5,7 @@ import common.messages.Account;
 import common.utils.Logger;
 
 import java.io.*;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * Data Access API to perform CRUD operations on the data file.
@@ -147,9 +146,12 @@ public class DataAccess extends Thread {
             }
             dataFile.createNewFile();
 
+            List<Account> list = new ArrayList<>();
+            list.addAll(accountList);
+            Collections.sort(list);
             BufferedWriter bw = new BufferedWriter(new FileWriter(dataFile));
             Gson gson = new Gson();
-            for (Account account : accountList) {
+            for (Account account : list) {
                 String json = gson.toJson(account);
                 bw.write(json);
                 bw.newLine();

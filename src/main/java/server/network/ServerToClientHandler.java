@@ -1,5 +1,6 @@
 package server.network;
 
+import common.Globals;
 import common.messages.*;
 import common.utils.Logger;
 import common.utils.MessageParser;
@@ -7,7 +8,9 @@ import common.utils.MessageParser;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * Request Handler for Server to client Communication
@@ -39,339 +42,168 @@ public class ServerToClientHandler extends Thread {
             WrapperMessage wrapper = MessageParser.parseMessageJSON(messageStr);
 
             switch (wrapper.getMessageType()) {
-
-                //grant permission if object doesn't exist. No need to check for lock since the object doesn't exist.
-                case SEEK_CREATE_PERMISSION:
-                    Logger.debug("SEEK_CREATE_PERMISSION Received");
+                case HEARTBEAT:{
+                    HeartBeat beat = (HeartBeat)MessageParser.deserializeObject(wrapper.getMessageBody());
+                    Logger.debug(beat);
+                    String toBeSent = MessageParser.createWrapper(beat, MessageType.HEARTBEAT_ECHO);
+                    dos.writeUTF(toBeSent);
+                    break;
+                }
+                case WHO_IS_PRIMARY: {
                     ObjectReq req = (ObjectReq) MessageParser.deserializeObject(wrapper.getMessageBody());
+                    String objectId = req.getObjectId();
+                    int server1 = node.computeServerId(objectId);
+                    int server2 = (server1 + 1) % 7;
+                    int server3 = (server1 + 2) % 7;
+                    int primaryId = -1;
 
-                    /**
-                     * Check if the requested object already exists in the file or not.
-                     * If its a duplicate, send failed response.
-                     * Else send Grant.
-                     * */
-                    String toBeSent = node.getDataAccess().getAccount(req.getObjectId()) != null
-                            ? MessageParser.createWrapper(req, MessageType.FAILED_CREATE_PERMISSION)
-                            : MessageParser.createWrapper(req, MessageType.GRANT_CREATE_PERMISSION);
-                    dos.writeUTF(toBeSent);
-                    break;
-
-                //grant permission if object exists and is not locked by anyone else.
-                case SEEK_UPDATE_PERMISSION:
-                    /**
-                     * Check if the object exists in the data file or not.
-                     * If not, send error
-                     * Else  start a synchronized routine
-                     * check if it is already locked. If not, put it in locked queue, return true.
-                     * else return false.
-                     *
-                     * If routine returns false, return error,
-                     * else grant the permission.
-                     * */
-
-                    Logger.debug("SEEK_UPDATE_PERMISSION Received");
-                    req = (ObjectReq) MessageParser.deserializeObject(wrapper.getMessageBody());
-                    Logger.debug(this.node.getLockedObjects());
-                    boolean locked = node.lockObject(req.getObjectId(), req.getClientId());
-                    Logger.debug("Locked", locked);
-                    toBeSent = locked
-                            ? MessageParser.createWrapper(req, MessageType.GRANT_UPDATE_PERMISSION)
-                            : MessageParser.createWrapper(req, MessageType.FAILED_UPDATE_PERMISSION);
-                    dos.writeUTF(toBeSent);
-                    break;
-
-                //grant permission is object exists and is not locked by someone else.
-                case SEEK_READ_PERMISSION:
-                    Logger.debug("SEEK_READ_PERMISSION Received");
-                    req = (ObjectReq) MessageParser.deserializeObject(wrapper.getMessageBody());
-
-                    locked = node.isObjectLocked(req.getObjectId(), req.getClientId());
-                    toBeSent = !locked && node.getDataAccess().getAccount(req.getObjectId()) != null
-                            ? MessageParser.createWrapper(req, MessageType.GRANT_READ_PERMISSION)
-                            : MessageParser.createWrapper(req, MessageType.FAILED_READ_PERMISSION);
-                    dos.writeUTF(toBeSent);
-
-                    break;
-
-                //grant permission if the object exists and is not locked by anyone else.
-                case SEEK_DELETE_PERMISSION:
-                    Logger.debug("SEEK_DELETE_PERMISSION Received");
-                    req = (ObjectReq) MessageParser.deserializeObject(wrapper.getMessageBody());
-                    locked = node.lockObject(req.getObjectId(), req.getClientId());
-                    toBeSent = locked
-                            ? MessageParser.createWrapper(req, MessageType.GRANT_DELETE_PERMISSION)
-                            : MessageParser.createWrapper(req, MessageType.FAILED_DELETE_PERMISSION);
-                    dos.writeUTF(toBeSent);
-                    break;
-
-                //create an object is object is valid and doesn't exist in the file
-                //store this object in the temporary file only.
-                case CREATE_OBJ_REQ:
-                    Logger.debug("CREATE_OBJ_REQ Received");
-                    AccountMessage accountMessage = (AccountMessage)MessageParser
-                            .deserializeObject(wrapper.getMessageBody());
-
-                    Account acc = accountMessage.getAccount();
-                    if(checkAccountStructure(acc)
-                            && node.getDataAccess().getAccount(acc.getId()) == null){
-
-                        node.getTemporaryData().add(acc);
-
-//                        acc = node.getDataAccess().createAccount(acc);
-                        accountMessage.setAccount(acc);
-                        toBeSent = MessageParser.createWrapper(accountMessage, MessageType.CREATE_OBJ_SUCCESS);
+                    if (node.isPeerReachable(server1)) {
+                        primaryId = server1;
+                    } else if (node.isPeerReachable(server2)) {
+                        primaryId = server2;
+                    } else if (node.isPeerReachable(server3)) {
+                        primaryId = server3;
+                    }
+                    PrimaryInfo info;
+                    if(primaryId == -1){
+                        info = new PrimaryInfo(primaryId, "", -1);
                     }
                     else{
-                        toBeSent = MessageParser.createWrapper(accountMessage, MessageType.CREATE_OBJ_FAILED);
+                        info = new PrimaryInfo(primaryId,
+                                Globals.serverHostNames.get(primaryId),
+                                Globals.serverClientPortNums.get(primaryId));
                     }
+
+
+                    String toBeSent = MessageParser.createWrapper(info, MessageType.PRIMARY_INFO);
                     dos.writeUTF(toBeSent);
                     break;
+                }
 
+                case READ_OBJ_REQ:{
+                    ObjectReq req = (ObjectReq) MessageParser.deserializeObject(wrapper.getMessageBody());
+                    Account acc = node.getDataAccess().getAccount(req.getObjectId());
 
-                case CREATE_OBJECT_PREPARE:
-                    Logger.debug("CREATE_OBJECT_PREPARE Received");
-                    req = (ObjectReq)MessageParser.deserializeObject(wrapper.getMessageBody());
-
-                    Account temp = node.getTemporaryAccount(req.getObjectId());
-
-                    if(temp == null){
-                        toBeSent = MessageParser.createWrapper(req, MessageType.CREATE_OBJ_FAILED);
+                    String toBeSent;
+                    if(acc == null){
+                        toBeSent = MessageParser.createWrapper(req, MessageType.READ_OBJ_FAILED);
                     }
-                    else{
-                        toBeSent = MessageParser.createWrapper(req, MessageType.CREATE_OBJECT_PREPARE_ACK);
-                        node.getTemporaryData().remove(temp);
-                        node.addToPreparedData(temp);
-                    }
-                    dos.writeUTF(toBeSent);
-
-                    break;
-
-                case CREATE_OBJECT_ABORT:
-                    Logger.debug("CREATE_OBJECT_ABORT received");
-                    Logger.debug(node.getTemporaryData());
-                    req = (ObjectReq)MessageParser.deserializeObject(wrapper.getMessageBody());
-                    temp = node.getTemporaryAccount(req.getObjectId());
-                    if(temp != null){
-                        node.getTemporaryData().remove(temp);
-                    }
-                    temp = node.getPreparedAccount(req.getObjectId());
-                    if(temp != null){
-                        node.getPreparedAccess().removeAccount(temp.getId());
-                    }
-                    Logger.debug(node.getTemporaryData());
-                    break;
-
-                //TODO add the commit
-                case CREATE_OBJECT_COMMIT:
-                    Logger.debug("CREATE_OBJECT_COMMIT received");
-                    req = (ObjectReq)MessageParser.deserializeObject(wrapper.getMessageBody());
-                    acc = node.getPreparedAccount(req.getObjectId());
-                    node.getDataAccess().createAccount(acc);
-                    node.getPreparedData().remove(acc);
-                    node.getPreparedAccess().removeAccount(acc.getId());
-                    break;
-
-                //update object if the structure is valid and exists and object is locked by the client
-                case UPDATE_OBJ_REQ:
-                    Logger.debug("UPDATE_OBJ_REQ Received");
-
-                    accountMessage = (AccountMessage)MessageParser
-                            .deserializeObject(wrapper.getMessageBody());
-
-                    acc = accountMessage.getAccount();
-                    Account oldAccount = node.getDataAccess().getAccount(acc.getId());
-                    if(checkAccountStructure(acc)
-                            && node.isObjectLocked(acc.getId(), accountMessage.getClientId())
-                            && oldAccount != null){
-
-                        oldAccount.setOpeningBalance(acc.getOpeningBalance());
-                        oldAccount.setCurrentBalance(acc.getCurrentBalance());
-                        oldAccount.setOwnerName(acc.getOwnerName());
-                        oldAccount.setUpdatedAt(acc.getUpdatedAt());
-                        node.getTemporaryData().add(oldAccount);
-
-//                        acc = node.getDataAccess().createAccount(acc);
-                        accountMessage.setAccount(oldAccount);
-                        toBeSent = MessageParser.createWrapper(accountMessage, MessageType.UPDATE_OBJ_SUCCESS);
-                    }
-                    else{
-                        toBeSent = MessageParser.createWrapper(accountMessage, MessageType.UPDATE_OBJ_FAILED);
-                    }
-
-                    dos.writeUTF(toBeSent);
-                    break;
-
-                case UPDATE_OBJECT_PREPARE:
-                    Logger.debug("UPDATE_OBJECT_PREPARE Received");
-                    req = (ObjectReq)MessageParser.deserializeObject(wrapper.getMessageBody());
-
-                    temp = node.getTemporaryAccount(req.getObjectId());
-
-                    if(temp == null){
-                        toBeSent = MessageParser.createWrapper(req, MessageType.UPDATE_OBJ_FAILED);
-                    }
-                    else{
-                        toBeSent = MessageParser.createWrapper(req, MessageType.UPDATE_OBJECT_PREPARE_ACK);
-                        node.getTemporaryData().remove(temp);
-                        node.addToPreparedData(temp);
-                    }
-                    dos.writeUTF(toBeSent);
-                    node.freeObject(req.getObjectId(), req.getClientId());
-                    break;
-
-                case UPDATE_OBJECT_ABORT:
-                    Logger.debug("UPDATE_OBJECT_ABORT received");
-                    Logger.debug(node.getTemporaryData());
-                    req = (ObjectReq)MessageParser.deserializeObject(wrapper.getMessageBody());
-                    temp = node.getTemporaryAccount(req.getObjectId());
-                    if(temp != null){
-                        node.getTemporaryData().remove(temp);
-                    }
-                    temp = node.getPreparedAccount(req.getObjectId());
-                    if(temp != null){
-                        node.getPreparedAccess().removeAccount(temp.getId());
-                    }
-                    Logger.debug(node.getTemporaryData());
-                    node.freeObject(req.getObjectId(), req.getClientId());
-                    break;
-
-                //TODO add the commit
-                case UPDATE_OBJECT_COMMIT:
-                    Logger.debug("UPDATE_OBJECT_COMMIT received");
-                    req = (ObjectReq)MessageParser.deserializeObject(wrapper.getMessageBody());
-                    acc = node.getPreparedAccount(req.getObjectId());
-
-                    node.getDataAccess().updateAccount(acc);
-                    node.getPreparedData().remove(acc);
-                    node.getPreparedAccess().removeAccount(acc.getId());
-                    node.freeObject(acc.getId(), req.getClientId());
-                    break;
-
-                //read the object if it exists and is not locked by someone else.
-                case READ_OBJ_REQ:
-                    Logger.debug("READ_OBJ_REQ Received");
-                    req = (ObjectReq) MessageParser.deserializeObject(wrapper.getMessageBody());
-
-                    locked = node.isObjectLocked(req.getObjectId(), req.getClientId());
-                    acc = node.getDataAccess().getAccount(req.getObjectId());
-
-                    accountMessage = new AccountMessage();
-                    accountMessage.setServerId(req.getServerId());
-                    accountMessage.setClientId(req.getClientId());
-                    accountMessage.setAccount(acc);
-
-                    if(!locked && acc != null){
+                    else {
+                        AccountMessage accountMessage;
+                        accountMessage = new AccountMessage(req.getServerId(), req.getClientId(), acc);
                         toBeSent = MessageParser.createWrapper(accountMessage, MessageType.READ_OBJ_SUCCESS);
                     }
+                    dos.writeUTF(toBeSent);
+                    break;
+                }
+                case MUTATION_REQ: {
+                    MutationReq mutationReq = (MutationReq) MessageParser.deserializeObject(wrapper.getMessageBody());
+                    node.addMutationReq(mutationReq);
+                    MutationAck ack = new MutationAck(mutationReq, true);
+                    String toBeSent = MessageParser.createWrapper(ack, MessageType.MUTATION_ACK);
+                    dos.writeUTF(toBeSent);
+                    Logger.debug(node.getMutationRequestBuffer());
+                    Logger.debug(node.getMutationWriteRequests());
+                    break;
+                }
+                case MUTATION_WRITE_REQ: {
+                    //get the write request, assign it a new serial number and add it to the queue.
+                    //lock the data structure
+                    Logger.log("Received MUTATION_WRITE_REQ");
+                    node.getLock().lock();
+                    MutationWriteReq req = (MutationWriteReq) MessageParser
+                            .deserializeObject(wrapper.getMessageBody());
+
+                    node.addMutationWriteReq(req.getObjectId(), req.getRequestId());
+
+                    Logger.debug(node.getMutationWriteRequests());
+                    //get the lock again and try to send the request to other servers.
+
+                    List<String> serialNums = node.getMutationWriteRequests().get(req.getObjectId());
+                    String toBeSent;
+                    if(serialNums == null || serialNums.isEmpty())
+                    {
+                        node.getLock().unlock();
+                        toBeSent = MessageParser.createWrapper(req, MessageType.MUTATION_WRITE_ACK);
+                        dos.writeUTF(toBeSent);
+                        break;
+                    }
+                    req.setSerialNumbers(serialNums);
+                    Logger.debug(req);
+                    String objectId = req.getObjectId();
+                    int server1 = node.computeServerId(objectId);
+                    int server2 = (server1 + 1) % 7;
+                    int server3 = (server2 + 1) % 7;
+                    int[] servers = {server1, server2, server3};
+                    List<Integer> successList = new ArrayList<>();
+                    DataInputStream dis1;
+                    DataOutputStream dos1;
+                    Logger.log("Sending Mutation proceed message to all the servers");
+                    for(int serverId: servers){
+                        toBeSent = MessageParser.createWrapper(req, MessageType.MUTATION_PROCEED);
+                        Socket socket1 = node.sendMessage(toBeSent, serverId, false);
+                        if(socket1 != null){
+                            dis1 = new DataInputStream(socket1.getInputStream());
+                            dos1  = new DataOutputStream(socket1.getOutputStream());
+                            dos1.writeUTF(toBeSent);
+                            Logger.log("Sent Mutation Proceed to server " + serverId + ", waiting for the ack");
+                            String received = dis1.readUTF();
+                            Logger.log("Message received from server " + serverId);
+                            WrapperMessage message = MessageParser.parseMessageJSON(received);
+                            if (message.getMessageType() == MessageType.MUTATION_PROCEED_ACK) {
+                                Logger.log("MUTATION_PROCEED_ACK received from server " + serverId);
+                                successList.add(serverId);
+                            }
+                            dis1.close();
+                            dos1.close();
+                            socket1.close();
+                        }
+                    }
+                    node.getMutationRequestBuffer().get(req.getObjectId()).clear();
+                    node.getMutationWriteRequests().get(req.getObjectId()).clear();
+                    node.getMutationRequestBuffer().remove(req.getObjectId());
+                    node.getMutationWriteRequests().remove(req.getObjectId());
+                    node.getLock().unlock();
+                    if(successList.size() > 1){
+                        toBeSent = MessageParser.createWrapper(req, MessageType.MUTATION_WRITE_ACK);
+                    }
                     else{
-                        toBeSent = MessageParser.createWrapper(accountMessage, MessageType.READ_OBJ_FAILED);
+                        toBeSent = MessageParser.createWrapper(req, MessageType.MUTATION_WRITE_FAILED);
                     }
                     dos.writeUTF(toBeSent);
                     break;
-
-                //delete the object if it exists and is locked someone else.
-                case DELETE_OBJ_REQ:
-                    Logger.debug("DELETE_OBJ_REQ Received");
-                    req = (ObjectReq) MessageParser.deserializeObject(wrapper.getMessageBody());
-
-                    oldAccount = node.getDataAccess().getAccount(req.getObjectId());
-
-                    if(node.isObjectLocked(req.getObjectId(), req.getClientId())
-                            && oldAccount != null){
-
-                        //add this account to the temporary account list.
-                        node.getTemporaryData().add(oldAccount);
-
-//                        acc = node.getDataAccess().removeAccount(req.getObjectId());
-                        accountMessage = new AccountMessage();
-                        accountMessage.setServerId(req.getServerId());
-                        accountMessage.setClientId(req.getClientId());
-                        accountMessage.setAccount(oldAccount);
-
-                        toBeSent = MessageParser.createWrapper(accountMessage, MessageType.DELETE_OBJ_SUCCESS);
-                    }
-                    else{
-                        toBeSent = MessageParser.createWrapper(req, MessageType.DELETE_OBJ_FAILED);
-                    }
-                    dos.writeUTF(toBeSent);
-
-                    break;
-                case DELETE_OBJECT_PREPARE:
-                    Logger.debug("DELETE_OBJECT_PREPARE Received");
-                    req = (ObjectReq)MessageParser.deserializeObject(wrapper.getMessageBody());
-
-                    temp = node.getTemporaryAccount(req.getObjectId());
-
-                    if(temp == null){
-                        toBeSent = MessageParser.createWrapper(req, MessageType.DELETE_OBJ_FAILED);
-                    }
-                    else{
-                        toBeSent = MessageParser.createWrapper(req, MessageType.DELETE_OBJECT_PREPARE_ACK);
-                        node.getTemporaryData().remove(temp);
-                        node.addToPreparedData(temp);
-                    }
-                    dos.writeUTF(toBeSent);
-                    node.freeObject(req.getObjectId(), req.getClientId());
-                    break;
-
-                case DELETE_OBJECT_ABORT:
-                    Logger.debug("DELETE_OBJECT_ABORT received");
-                    Logger.debug(node.getTemporaryData());
-                    req = (ObjectReq)MessageParser.deserializeObject(wrapper.getMessageBody());
-                    temp = node.getTemporaryAccount(req.getObjectId());
-                    if(temp != null){
-                        node.getTemporaryData().remove(temp);
-                    }
-                    temp = node.getPreparedAccount(req.getObjectId());
-                    if(temp != null){
-                        node.getPreparedAccess().removeAccount(temp.getId());
-                    }
-                    Logger.debug(node.getTemporaryData());
-                    node.freeObject(req.getObjectId(), req.getClientId());
-                    break;
-
-                //TODO add the commit
-                case DELETE_OBJECT_COMMIT:
-                    Logger.debug("DELETE_OBJECT_COMMIT received");
-                    req = (ObjectReq)MessageParser.deserializeObject(wrapper.getMessageBody());
-                    acc = node.getPreparedAccount(req.getObjectId());
-
-                    node.getDataAccess().removeAccount(acc.getId());
-                    node.getPreparedData().remove(acc);
-                    node.getPreparedAccess().removeAccount(acc.getId());
-                    node.freeObject(req.getObjectId(), req.getClientId());
-                    break;
+                }
             }
-
             dos.flush();
             dos.close();
             dis.close();
         } catch (Exception e) {
             Logger.error("Unable to handle the Server to client request", e);
+            e.printStackTrace();
         }
     }
 
 
     /**
      * Checks the account structure if all the fields are set.
+     *
      * @param acc the account object
      * @return true if the the account object is valid, otherwise false.
      */
-    private boolean checkAccountStructure(Account acc){
-        try{
-            if(acc == null || acc.getId() == null
+    private boolean checkAccountStructure(Account acc) {
+        try {
+            if (acc == null || acc.getId() == null
                     || acc.getId().isEmpty()
                     || acc.getCurrentBalance() == null
                     || acc.getCurrentBalance().doubleValue() == 0.0
                     || acc.getOpeningBalance() == null
                     || acc.getOpeningBalance().doubleValue() == 0
-                    || acc.getOwnerName() == null || acc.getOwnerName().isEmpty()){
+                    || acc.getOwnerName() == null || acc.getOwnerName().isEmpty()) {
                 return false;
             }
 
             return true;
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             Logger.log("Invalid account structure", e);
             return false;
         }

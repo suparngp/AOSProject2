@@ -93,8 +93,8 @@ public class InputProcessor {
 
         currentBalance = openingBalance;
         try {
-            Account acc = this.clientNode.createMultiServer(objectId, name, openingBalance, currentBalance);
-            Logger.log("Object created", acc);
+            //Account acc = this.clientNode.createMultiServer(objectId, name, openingBalance, currentBalance);
+            Logger.log("Object created", null);
         } catch (Exception e) {
             Logger.error("Unable to create object", e);
         }
@@ -107,7 +107,8 @@ public class InputProcessor {
         String objectId = sc.nextLine();
 
         try{
-            Account acc = this.clientNode.readMultiServer(objectId);
+            Account acc = null;
+            //Account acc = this.clientNode.readMultiServer(objectId);
             if(acc == null){
                 throw new Exception("Object was not found");
             }
@@ -153,7 +154,8 @@ public class InputProcessor {
             currentBalance = Double.parseDouble(input.trim());
         }
         try {
-            acc = this.clientNode.updateMultiServer(objectId, name, openingBalance, currentBalance);
+            //Account acc = null;
+           // acc = this.clientNode.updateMultiServer(objectId, name, openingBalance, currentBalance);
             if(acc == null){
                 throw new Exception("Unable to update object on server");
             }
@@ -172,7 +174,8 @@ public class InputProcessor {
         String objectId = sc.nextLine();
 
         try{
-            Account acc = this.clientNode.deleteMultiServer(objectId);
+            Account acc = null;
+            //Account acc = this.clientNode.deleteMultiServer(objectId);
             if(acc == null){
                 throw new Exception("Object was not found");
             }
