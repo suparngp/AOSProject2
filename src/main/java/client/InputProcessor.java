@@ -2,8 +2,10 @@ package client;
 
 import client.clientNetwork.ClientNode;
 import common.messages.Account;
+import common.messages.MutationType;
 import common.utils.Logger;
 
+import java.util.Date;
 import java.util.Scanner;
 
 /**
@@ -93,8 +95,21 @@ public class InputProcessor {
 
         currentBalance = openingBalance;
         try {
-            Account acc = this.clientNode.createMultiServer(objectId, name, openingBalance, currentBalance);
-            Logger.log("Object created", acc);
+            Account account = new Account(objectId);
+            Date date = new Date();
+            account.setOwnerName(name);
+            account.setCreatedAt(date);
+            account.setUpdatedAt(date);
+            account.setOpeningBalance(openingBalance);
+            account.setCurrentBalance(currentBalance);
+            boolean result = clientNode.sendMutationRequest(account, MutationType.CREATE, objectId);
+            //Account acc = this.clientNode.createMultiServer(objectId, name, openingBalance, currentBalance);
+            if(result){
+                Logger.log("Object created successfully", account);
+            }
+            else {
+                Logger.log("Could not create Object");
+            }
         } catch (Exception e) {
             Logger.error("Unable to create object", e);
         }
@@ -107,7 +122,8 @@ public class InputProcessor {
         String objectId = sc.nextLine();
 
         try{
-            Account acc = this.clientNode.readMultiServer(objectId);
+            Account acc = clientNode.sendReadRequest(objectId);
+            //Account acc = this.clientNode.readMultiServer(objectId);
             if(acc == null){
                 throw new Exception("Object was not found");
             }
@@ -152,9 +168,16 @@ public class InputProcessor {
         if(input != null && !input.trim().isEmpty()){
             currentBalance = Double.parseDouble(input.trim());
         }
+
+        acc.setOwnerName(name);
+        acc.setCurrentBalance(currentBalance);
+        acc.setOpeningBalance(openingBalance);
+        acc.setUpdatedAt(new Date());
         try {
-            acc = this.clientNode.updateMultiServer(objectId, name, openingBalance, currentBalance);
-            if(acc == null){
+            //Account acc = ;
+           // acc = this.clientNode.updateMultiServer(objectId, name, openingBalance, currentBalance);
+            boolean result = clientNode.sendMutationRequest(acc, MutationType.UPDATE, objectId);
+            if(!result){
                 throw new Exception("Unable to update object on server");
             }
             else{
@@ -172,8 +195,9 @@ public class InputProcessor {
         String objectId = sc.nextLine();
 
         try{
-            Account acc = this.clientNode.deleteMultiServer(objectId);
-            if(acc == null){
+            Account acc = new Account(objectId);
+            boolean result = clientNode.sendMutationRequest(acc, MutationType.DELETE, objectId);
+            if(!result){
                 throw new Exception("Object was not found");
             }
             Logger.log("Object successfully deleted from server", acc);

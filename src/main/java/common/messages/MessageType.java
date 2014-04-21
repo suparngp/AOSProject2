@@ -107,4 +107,20 @@ public enum MessageType implements Serializable{
     UPDATE_OBJECT_COMMIT,
     DELETE_OBJECT_COMMIT,
 
+    /***
+     * New protocol
+     */
+    HEARTBEAT,
+    HEARTBEAT_ECHO,
+    WHO_IS_PRIMARY,
+    PRIMARY_INFO,
+    MUTATION_REQ,
+    MUTATION_ACK,
+    MUTATION_WRITE_REQ,
+    MUTATION_WRITE_ACK,
+    MUTATION_WRITE_FAILED,
+    MUTATION_PROCEED,
+    MUTATION_PROCEED_ACK,
+    MUTATION_PROCEED_FAILED
+
  }
