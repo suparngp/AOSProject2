@@ -455,17 +455,17 @@ public class ClientNode {
         return UUID.randomUUID().toString();
     }
 
-    public void sendMutationRequest(Account account, MutationType mutationType, String objectId) throws Exception{
+    public boolean sendMutationRequest(Account account, MutationType mutationType, String objectId) throws Exception{
         List<Integer> servers = getAvailableServers(objectId);
         if(servers.size() < 2){
             Logger.log("Unable to send mutation request because less than 2 servers are available", servers);
-            return;
+            return false;
         }
 
         PrimaryInfo info = getPrimaryServer(servers, objectId);
         if(info == null){
             Logger.log("Unable to find the primary server", servers);
-            return;
+            return false;
         }
 
         //send the mutation request to all the servers.
@@ -492,7 +492,7 @@ public class ClientNode {
 
         if(successServers.size() < 2){
             Logger.log("Less than 2 servers acknowledged the mutation request", successServers);
-            return;
+            return false;
         }
 
         //send mutation write req to the primary.
@@ -502,16 +502,18 @@ public class ClientNode {
         Socket socket = sendMessage(toBeSent, info.getPrimaryId(), false);
         if(socket == null){
             Logger.log("Unable to complete mutation write");
-            return;
+            return false;
         }
 
         DataInputStream dis = new DataInputStream(socket.getInputStream());
         WrapperMessage wrapper = MessageParser.parseMessageJSON(dis.readUTF());
         if(wrapper.getMessageType() == MessageType.MUTATION_WRITE_ACK){
             Logger.log("Mutation process completed");
+            return true;
         }
         else{
             Logger.log("Mutation process failed");
+            return false;
         }
     }
 
