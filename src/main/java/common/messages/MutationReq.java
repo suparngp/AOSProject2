@@ -14,9 +14,9 @@ public class MutationReq implements Serializable {
     private Account data;
 
     /**
-     * Sets new data.
+     * Sets new services.
      *
-     * @param data New value of data.
+     * @param data New value of services.
      */
     public void setData(Account data) {
         this.data = data;
@@ -59,9 +59,9 @@ public class MutationReq implements Serializable {
     }
 
     /**
-     * Gets data.
+     * Gets services.
      *
-     * @return Value of data.
+     * @return Value of services.
      */
     public Account getData() {
         return data;
@@ -129,7 +129,7 @@ public class MutationReq implements Serializable {
                 ", objectId='" + objectId + '\'' +
                 ", requestId='" + requestId + '\'' +
                 ", requestType=" + requestType +
-                ", data=" + data +
+                ", services=" + data +
                 '}';
     }
 }

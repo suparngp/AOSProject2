@@ -73,11 +73,8 @@ public class ConnectionManager {
                             Logger.error("Server sent an unknown reply to INTRO", wrapper);
                             throw new Exception();
                         }
-
                         Logger.debug("Discovered Nodes", discoveredNodes);
-
                     }
-
                     catch(Exception e){
                         Logger.debug("Node is not yet up", serverId, e);
                     }
@@ -116,6 +113,9 @@ public class ConnectionManager {
                 node.sendMessage(toBeSent, serverId, true);
             }
             Logger.log("DISCOVERY_COMPLETE message broadcast completed successfully.");
+            this.node.getDiscoveredServers().addAll(discoveredNodes);
+
+            new HeartBeatRunner(node).start();
             node.getServerToClientChannel().init().start();
         }
 

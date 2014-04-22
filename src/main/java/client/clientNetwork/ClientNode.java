@@ -9,6 +9,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,9 +19,10 @@ import java.util.UUID;
 public class ClientNode {
     private int nodeId;
     private int objectIdCounter = 1;
-
+    private HashSet<Integer> blockingList;
     public ClientNode(int nodeId) {
         this.nodeId = nodeId;
+        this.blockingList = new HashSet<>();
     }
 
     /**
@@ -127,10 +129,15 @@ public class ClientNode {
      * @return the socket used to send the message
      */
     public Socket sendMessage(String toBeSent, int serverId, boolean close) {
+
+        //check if the channel is blocked?
+        if(this.blockingList.contains(serverId)){
+            return null;
+        }
         String hostName = Globals.serverHostNames.get(serverId);
         int portNum = Globals.serverClientPortNums.get(serverId);
 
-        Logger.debug("Sending to ", serverId);
+        Logger.log("Sending message to ", serverId);
         DataOutputStream dos;
         try {
             Socket socket = new Socket(hostName, portNum);
@@ -151,29 +158,6 @@ public class ClientNode {
         }
     }
 
-    /**
-     * Sends a message from the given socket
-     *
-     * @param socket   the open socket
-     * @param toBeSent the message to be sent.
-     * @return the original socket.
-     */
-    public Socket sendMessage(Socket socket, String toBeSent, boolean close) {
-        DataOutputStream dos;
-        try {
-            dos = new DataOutputStream(socket.getOutputStream());
-            dos.writeUTF(toBeSent);
-            dos.flush();
-            if (close) {
-                dos.close();
-                socket.close();
-            }
-            return socket;
-        } catch (Exception e) {
-            Logger.log("Unable to send message ", e);
-            return null;
-        }
-    }
 
     public List<Integer> getAvailableServers(String objectId){
         int server1 = computeServerId(objectId);
@@ -310,4 +294,21 @@ public class ClientNode {
         return account;
     }
 
+    /**
+     * Sets new blockingList.
+     *
+     * @param blockingList New value of blockingList.
+     */
+    public void setBlockingList(HashSet<Integer> blockingList) {
+        this.blockingList = blockingList;
+    }
+
+    /**
+     * Gets blockingList.
+     *
+     * @return Value of blockingList.
+     */
+    public HashSet<Integer> getBlockingList() {
+        return blockingList;
+    }
 }

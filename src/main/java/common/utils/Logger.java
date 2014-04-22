@@ -7,7 +7,7 @@ package common.utils;
 public class Logger {
 
     /*
-    * Logs data at LOG Level
+    * Logs services at LOG Level
     * */
     public static void log(Object... messages) {
         System.out.println("*********************LOG Begins********************");
@@ -18,7 +18,7 @@ public class Logger {
     }
 
     /*
-    * Logs data at DEBUG Level
+    * Logs services at DEBUG Level
     * */
     public static void debug(Object... messages) {
         System.out.println("*********************DEBUG LOG Begins********************");
@@ -29,7 +29,7 @@ public class Logger {
     }
 
     /*
-    * Logs data at ERROR Level
+    * Logs services at ERROR Level
     * */
     public static void error(Object... messages) {
         System.err.println("*********************ERROR LOG Begins********************");
