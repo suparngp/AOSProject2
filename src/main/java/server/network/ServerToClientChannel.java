@@ -13,8 +13,8 @@ import java.net.SocketException;
 public class ServerToClientChannel extends Thread {
 
     private ServerSocket serverToClientSocket;
-    private Node node;
-    private int portNum;
+    private final Node node;
+    private final int portNum;
     
     public ServerToClientChannel(Node node) {
         super("ServerToClientChannelThread");
@@ -89,12 +89,4 @@ public class ServerToClientChannel extends Thread {
         return serverToClientSocket;
     }
 
-    /**
-     * Sets new serverToClientSocket.
-     *
-     * @param serverToClientSocket New value of serverToClientSocket.
-     */
-    public void setServerToClientSocket(ServerSocket serverToClientSocket) {
-        this.serverToClientSocket = serverToClientSocket;
-    }
 }

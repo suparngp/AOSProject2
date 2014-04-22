@@ -14,12 +14,13 @@ import java.net.Socket;
  * Heartbeat runner to send the periodic heart beats to the servers.
  * Created by suparngupta on 4/22/14.
  */
+@SuppressWarnings("ALL")
 public class HeartBeatRunner extends Thread {
 
     /*
     * the server node
     * */
-    private Node node;
+    private final Node node;
 
     public HeartBeatRunner(Node node) {
         super("HeartBeatRunner for node " + node.getNodeId() + " created");
@@ -33,6 +34,7 @@ public class HeartBeatRunner extends Thread {
     @Override
     public void run() {
         Logger.log("HeartBeatRunner started");
+
         while (true) {
             HeartBeat heartBeat = new HeartBeat(this.node.getNodeId(), -1);
             try {

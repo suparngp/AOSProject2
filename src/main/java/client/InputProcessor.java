@@ -13,7 +13,7 @@ import java.util.Scanner;
  */
 public class InputProcessor {
 
-    private ClientNode clientNode;
+    private final ClientNode clientNode;
 
     public InputProcessor(ClientNode clientNode) {
         this.clientNode = clientNode;
@@ -204,7 +204,7 @@ public class InputProcessor {
         }
     }
 
-    private Account processDelete() {
+    private void processDelete() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Please enter the object id");
         String objectId = sc.nextLine();
@@ -216,14 +216,12 @@ public class InputProcessor {
                 throw new Exception("Object was not found");
             }
             Logger.log("Object successfully deleted from server", acc);
-            return acc;
         } catch (Exception e) {
             Logger.error("Unable to delete Object", e);
-            return null;
         }
     }
 
-    public void processBlockingList() {
+    void processBlockingList() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Please enter the server's id to block channel");
         String input = sc.nextLine();
@@ -233,16 +231,16 @@ public class InputProcessor {
                 if (clientNode.getBlockingList().contains(serverId)) {
                     System.out.println("Server already present in the blocking list");
                 } else {
+                    boolean add = clientNode.getBlockingList().add(serverId);
+                    if (!add) {
+                        System.err.println("Unable to add server to blocking list");
+                    } else {
+                        System.out.println("Server " + serverId + " added to blocking list successfully");
+                        System.out.println("Testing reachability.....");
+                        System.out.println("Reachable: " + clientNode.isServerReachable(serverId));
+                    }
+                }
 
-                }
-                boolean add = clientNode.getBlockingList().add(serverId);
-                if (!add) {
-                    System.err.println("Unable to add server to blocking list");
-                } else {
-                    System.out.println("Server " + serverId + " added to blocking list successfully");
-                    System.out.println("Testing reachability.....");
-                    System.out.println("Reachable: " + clientNode.isServerReachable(serverId));
-                }
                 break;
             } catch (Exception e) {
                 System.out.println("Please enter a valid server id");
@@ -251,7 +249,7 @@ public class InputProcessor {
         }
     }
 
-    public void processRemoveBlockingList() {
+    void processRemoveBlockingList() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Please enter the server's id to unblock channel");
         String input = sc.nextLine();
@@ -261,16 +259,16 @@ public class InputProcessor {
                 if (!clientNode.getBlockingList().contains(serverId)) {
                     System.out.println("Server not present in the blocking list");
                 } else {
+                    boolean add = clientNode.getBlockingList().remove(serverId);
+                    if (!add) {
+                        System.err.println("Unable to remove server from blocking list");
+                    } else {
+                        System.out.println("Server " + serverId + " from blocking list successfully");
+                        System.out.println("Testing reachability.....");
+                        System.out.println("Reachable: " + clientNode.isServerReachable(serverId));
+                    }
+                }
 
-                }
-                boolean add = clientNode.getBlockingList().remove(serverId);
-                if (!add) {
-                    System.err.println("Unable to remove server from blocking list");
-                } else {
-                    System.out.println("Server " + serverId + " from blocking list successfully");
-                    System.out.println("Testing reachability.....");
-                    System.out.println("Reachable: " + clientNode.isServerReachable(serverId));
-                }
                 break;
             } catch (Exception e) {
                 System.out.println("Please enter a valid server id");

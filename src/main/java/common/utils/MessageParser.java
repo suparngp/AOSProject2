@@ -19,7 +19,7 @@ public class MessageParser {
      * deserializes the message stream to the object.
      *
      * @param buffer the byte stream buffer
-     * @return the deserialized object
+     * @return the deserialize object
      */
     public static Object deserializeObject(byte[] buffer) {
         try {
@@ -70,7 +70,7 @@ public class MessageParser {
      * @param json the json string
      * @return the parsed JSON WrapperMessage Object
      */
-    public static WrapperMessage parseMessageJSON(String json) throws Exception {
+    public static WrapperMessage parseMessageJSON(String json) {
         Gson gson = new Gson();
         return gson.fromJson(json, WrapperMessage.class);
     }

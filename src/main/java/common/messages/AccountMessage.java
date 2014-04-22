@@ -82,10 +82,8 @@ public class AccountMessage implements Serializable{
         AccountMessage that = (AccountMessage) o;
 
         if (clientId != that.clientId) return false;
-        if (serverId != that.serverId) return false;
-        if (account != null ? !account.equals(that.account) : that.account != null) return false;
+        return serverId == that.serverId && !(account != null ? !account.equals(that.account) : that.account != null);
 
-        return true;
     }
 
     @Override

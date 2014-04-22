@@ -23,24 +23,19 @@ import java.util.concurrent.locks.ReentrantLock;
  * Created by suparngupta on 4/5/14.
  */
 public class Node extends Thread {
-    private int nodeId;
-    private String hostName;
-    private int serverPortNum;
-    private int clientPortNum;
-    private ServerToServerChannel serverToServerChannel;
-    private ServerToClientChannel serverToClientChannel;
-    private HashMap<String, Integer> lockedObjects;
-    private boolean inProcess;
-    private DataAccess dataAccess;
-    private DataAccess preparedAccess;
-    private HashSet<Account> temporaryData;
-    private HashSet<Account> preparedData;
-    private HashMap<String, List<MutationReq>> mutationRequestBuffer;
-    private HashMap<String, List<String>> mutationWriteRequests;
-    private ReentrantLock lock;
-    private HashSet<Integer> discoveredServers;
-    private HashSet<Integer> aliveServers;
-    private HashSet<Integer> blockingList;
+    private final int nodeId;
+    private final String hostName;
+    private final int serverPortNum;
+    private final int clientPortNum;
+    private final ServerToServerChannel serverToServerChannel;
+    private final ServerToClientChannel serverToClientChannel;
+    private final DataAccess dataAccess;
+    private final HashMap<String, List<MutationReq>> mutationRequestBuffer;
+    private final HashMap<String, List<String>> mutationWriteRequests;
+    private final ReentrantLock lock;
+    private final HashSet<Integer> discoveredServers;
+    private final HashSet<Integer> aliveServers;
+    private final HashSet<Integer> blockingList;
 
     /**
      * Creates a new node
@@ -56,19 +51,13 @@ public class Node extends Thread {
         this.clientPortNum = clientPortNum;
         this.serverToServerChannel = new ServerToServerChannel(this);
         this.serverToClientChannel = new ServerToClientChannel(this);
-        this.lockedObjects = new HashMap<>();
-        this.inProcess = false;
         this.dataAccess = new DataAccess(this.nodeId + "_data.txt");
-        this.temporaryData = new HashSet<>();
-        this.preparedData = new HashSet<>();
-        this.preparedAccess = new DataAccess(this.nodeId + "_prepared_data.txt");
         this.mutationRequestBuffer = new HashMap<>();
         this.mutationWriteRequests = new HashMap<>();
         this.discoveredServers = new HashSet<>();
         this.aliveServers = new HashSet<>();
         this.lock = new ReentrantLock();
         this.blockingList = new HashSet<>();
-        init();
         Logger.log("Created Node ", this);
 
     }
@@ -82,14 +71,6 @@ public class Node extends Thread {
         return nodeId;
     }
 
-    /**
-     * Sets new nodeId.
-     *
-     * @param nodeId New value of nodeId.
-     */
-    public void setNodeId(int nodeId) {
-        this.nodeId = nodeId;
-    }
 
     /**
      * Gets serverToServerChannel.
@@ -100,14 +81,6 @@ public class Node extends Thread {
         return serverToServerChannel;
     }
 
-    /**
-     * Sets new serverToServerChannel.
-     *
-     * @param serverToServerChannel New value of serverToServerChannel.
-     */
-    public void setServerToServerChannel(ServerToServerChannel serverToServerChannel) {
-        this.serverToServerChannel = serverToServerChannel;
-    }
 
     /**
      * Gets serverPortNum.
@@ -118,51 +91,6 @@ public class Node extends Thread {
         return serverPortNum;
     }
 
-    /**
-     * Sets new serverPortNum.
-     *
-     * @param serverPortNum New value of serverPortNum.
-     */
-    public void setServerPortNum(int serverPortNum) {
-        this.serverPortNum = serverPortNum;
-    }
-
-    /**
-     * Gets hostName.
-     *
-     * @return Value of hostName.
-     */
-    public String getHostName() {
-        return hostName;
-    }
-
-    /**
-     * Sets new hostName.
-     *
-     * @param hostName New value of hostName.
-     */
-    public void setHostName(String hostName) {
-        this.hostName = hostName;
-    }
-
-
-//    public void sendMessage(String hostName, int portNum, String message) throws Exception {
-//        Socket socket = new Socket(hostName, portNum);
-//        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-//        dos.writeUTF(message);
-//        dos.flush();
-//    }
-
-
-//    public void broadcastMessage(HashMap<String, Integer> hostPortMap, String message) throws Exception {
-//        for (String host : hostPortMap.keySet()) {
-//            if (host.equals(this.hostName)) {
-//                continue;
-//            }
-//            int port = hostPortMap.get(host);
-//            sendMessage(host, port, message);
-//        }
-//    }
 
     /**
      * Gets serverToClientChannel.
@@ -173,14 +101,6 @@ public class Node extends Thread {
         return serverToClientChannel;
     }
 
-    /**
-     * Sets new serverToClientChannel.
-     *
-     * @param serverToClientChannel New value of serverToClientChannel.
-     */
-    public void setServerToClientChannel(ServerToClientChannel serverToClientChannel) {
-        this.serverToClientChannel = serverToClientChannel;
-    }
 
     /**
      * Gets clientPortNum.
@@ -189,15 +109,6 @@ public class Node extends Thread {
      */
     public int getClientPortNum() {
         return clientPortNum;
-    }
-
-    /**
-     * Sets new clientPortNum.
-     *
-     * @param clientPortNum New value of clientPortNum.
-     */
-    public void setClientPortNum(int clientPortNum) {
-        this.clientPortNum = clientPortNum;
     }
 
 
@@ -210,145 +121,6 @@ public class Node extends Thread {
         return dataAccess;
     }
 
-    /**
-     * Sets new dataAccess.
-     *
-     * @param dataAccess New value of dataAccess.
-     */
-    public void setDataAccess(DataAccess dataAccess) {
-        this.dataAccess = dataAccess;
-    }
-
-    /**
-     * Gets lockedObjects.
-     *
-     * @return Value of lockedObjects.
-     */
-    public HashMap<String, Integer> getLockedObjects() {
-        return lockedObjects;
-    }
-
-    /**
-     * Sets new lockedObjects.
-     *
-     * @param lockedObjects New value of lockedObjects.
-     */
-    public void setLockedObjects(HashMap<String, Integer> lockedObjects) {
-        this.lockedObjects = lockedObjects;
-    }
-
-    /**
-     * Gets temporaryData.
-     *
-     * @return Value of temporaryData.
-     */
-    public HashSet<Account> getTemporaryData() {
-        return temporaryData;
-    }
-
-    /**
-     * Sets new temporaryData.
-     *
-     * @param temporaryData New value of temporaryData.
-     */
-    public void setTemporaryData(HashSet<Account> temporaryData) {
-        this.temporaryData = temporaryData;
-    }
-
-    public Account getTemporaryAccount(String objectId) {
-        for (Account acc : temporaryData) {
-            if (acc.getId().equals(objectId)) {
-                return acc;
-            }
-        }
-        return null;
-    }
-
-    public Account getPreparedAccount(String objectId) {
-        for (Account acc : preparedData) {
-            if (acc.getId().equals(objectId)) {
-                return acc;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Gets preparedData.
-     *
-     * @return Value of preparedData.
-     */
-    public HashSet<Account> getPreparedData() {
-        return preparedData;
-    }
-
-    /**
-     * Sets new preparedData.
-     *
-     * @param preparedData New value of preparedData.
-     */
-    public void setPreparedData(HashSet<Account> preparedData) {
-        this.preparedData = preparedData;
-    }
-
-    public void addToPreparedData(Account acc) throws Exception {
-        this.preparedAccess.createAccount(acc);
-        this.preparedData.add(acc);
-    }
-
-    public void init() {
-        this.preparedData.addAll(this.preparedAccess.getAllAccounts());
-    }
-
-    /**
-     * Gets preparedAccess.
-     *
-     * @return Value of preparedAccess.
-     */
-    public DataAccess getPreparedAccess() {
-        return preparedAccess;
-    }
-
-    /**
-     * Sets new preparedAccess.
-     *
-     * @param preparedAccess New value of preparedAccess.
-     */
-    public void setPreparedAccess(DataAccess preparedAccess) {
-        this.preparedAccess = preparedAccess;
-    }
-
-    /**
-     * Checks if the peer server is reachable or not.
-     *
-     * @param peerId
-     * @return
-     */
-    public boolean isPeerReachable(int peerId) {
-        try {
-            boolean result = false;
-            String toBeSent = MessageParser.createWrapper(new HeartBeat(this.nodeId, peerId), MessageType.HEARTBEAT);
-//            Socket socket = new Socket(Globals.serverHostNames.get(peerId), Globals.serverPortNums.get(peerId));
-            Socket socket = sendMessage(toBeSent, peerId, false);
-            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-            DataInputStream dis = new DataInputStream(socket.getInputStream());
-
-            dos.writeUTF(toBeSent);
-            dos.flush();
-
-            String received = dis.readUTF();
-            if(MessageParser.parseMessageJSON(received).getMessageType() == MessageType.HEARTBEAT_ECHO){
-                result = true;
-            }
-            dis.close();
-            dos.close();
-            socket.close();
-            return result;
-        } catch (Exception e) {
-            Logger.log("Peer unreachable " + peerId, e);
-            return false;
-        }
-    }
 
     /**
      * Computes the primary server's id
@@ -379,14 +151,6 @@ public class Node extends Thread {
         return mutationRequestBuffer;
     }
 
-    /**
-     * Sets new mutationRequestBuffer.
-     *
-     * @param mutationRequestBuffer New value of mutationRequestBuffer.
-     */
-    public void setMutationRequestBuffer(HashMap<String, List<MutationReq>> mutationRequestBuffer) {
-        this.mutationRequestBuffer = mutationRequestBuffer;
-    }
 
     /**
      * Gets mutationWriteRequests.
@@ -397,42 +161,6 @@ public class Node extends Thread {
         return mutationWriteRequests;
     }
 
-    /**
-     * Sets new mutationWriteRequests.
-     *
-     * @param mutationWriteRequests New value of mutationWriteRequests.
-     */
-    public void setMutationWriteRequests(HashMap<String, List<String>> mutationWriteRequests) {
-        this.mutationWriteRequests = mutationWriteRequests;
-    }
-
-    /**
-     * Assigns a serial number to the request.
-     *
-     * @param objectId the request id
-     */
-    public synchronized void addMutationWriteReq(String objectId, String requestId) {
-        List<String> serialNums = this.getMutationWriteRequests().get(objectId);
-        if (serialNums == null) {
-            serialNums = new ArrayList<>();
-            this.mutationWriteRequests.put(objectId, serialNums);
-        }
-        serialNums.add(requestId);
-    }
-
-    /**
-     * Adds the mutation request to the buffer.
-     *
-     * @param mutationReq
-     */
-    public synchronized void addMutationReq(MutationReq mutationReq) {
-        List<MutationReq> mutationReqs = mutationRequestBuffer.get(mutationReq.getObjectId());
-        if (mutationReqs == null) {
-            mutationReqs = new ArrayList<>();
-        }
-        mutationReqs.add(mutationReq);
-        mutationRequestBuffer.put(mutationReq.getObjectId(), mutationReqs);
-    }
 
     /**
      * Gets lock.
@@ -443,13 +171,113 @@ public class Node extends Thread {
         return lock;
     }
 
+
     /**
-     * Sets new lock.
+     * Gets discoveredServers.
      *
-     * @param lock New value of lock.
+     * @return Value of discoveredServers.
      */
-    public void setLock(ReentrantLock lock) {
-        this.lock = lock;
+    public HashSet<Integer> getDiscoveredServers() {
+        return discoveredServers;
+    }
+
+    /**
+     * Gets aliveServers.
+     *
+     * @return Value of aliveServers.
+     */
+    public HashSet<Integer> getAliveServers() {
+        return aliveServers;
+    }
+
+
+    /**
+     * Gets blockingList.
+     *
+     * @return Value of blockingList.
+     */
+    public HashSet<Integer> getBlockingList() {
+        return blockingList;
+    }
+
+
+    @Override
+    public String toString() {
+        return "Node{" +
+                "nodeId=" + nodeId +
+                ", hostName='" + hostName + '\'' +
+                ", serverPortNum=" + serverPortNum +
+                ", clientPortNum=" + clientPortNum +
+                ", discoveredServers=" + discoveredServers +
+                ", aliveServers=" + aliveServers +
+                ", blockingList=" + blockingList +
+                '}';
+    }
+
+    /**
+     * Sends a message to the given server
+     *
+     * @param toBeSent the message to be sent.
+     * @param serverId the server id
+     * @return the socket used to send the message
+     */
+    public Socket sendMessage(String toBeSent, int serverId, boolean close) {
+        if (blockingList.contains(serverId)) {
+            return null;
+        }
+        String hostName = Globals.serverHostNames.get(serverId);
+        int portNum = Globals.serverPortNums.get(serverId);
+
+        Logger.debug("Sending to ", serverId);
+        DataOutputStream dos;
+        try {
+            Socket socket = new Socket(hostName, portNum);
+
+            dos = new DataOutputStream(socket.getOutputStream());
+            dos.writeUTF(toBeSent);
+            dos.flush();
+            if (close) {
+                dos.close();
+                socket.close();
+                return null;
+            }
+
+            return socket;
+        } catch (Exception e) {
+            Logger.log("Unable to send message to " + serverId, e);
+            return null;
+        }
+    }
+
+    /**
+     * Checks if the peer server is reachable or not.
+     *
+     * @param peerId
+     * @return
+     */
+    public boolean isPeerReachable(int peerId) {
+        try {
+            boolean result = false;
+            String toBeSent = MessageParser.createWrapper(new HeartBeat(this.nodeId, peerId), MessageType.HEARTBEAT);
+            Socket socket = sendMessage(toBeSent, peerId, false);
+            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+            DataInputStream dis = new DataInputStream(socket.getInputStream());
+
+            dos.writeUTF(toBeSent);
+            dos.flush();
+
+            String received = dis.readUTF();
+            if (MessageParser.parseMessageJSON(received).getMessageType() == MessageType.HEARTBEAT_ECHO) {
+                result = true;
+            }
+            dis.close();
+            dos.close();
+            socket.close();
+            return result;
+        } catch (Exception e) {
+            Logger.log("Peer unreachable " + peerId, e);
+            return false;
+        }
     }
 
     /**
@@ -495,112 +323,39 @@ public class Node extends Thread {
     }
 
     /**
-     * Sends a message to the given server
+     * Assigns a serial number to the request.
      *
-     * @param toBeSent the message to be sent.
-     * @param serverId the server id
-     * @return the socket used to send the message
+     * @param objectId the request id
      */
-    public Socket sendMessage(String toBeSent, int serverId, boolean close) {
-        if(blockingList.contains(serverId)){
-            return null;
+    public synchronized void addMutationWriteReq(String objectId, String requestId) {
+        List<String> serialNums = this.getMutationWriteRequests().get(objectId);
+        if (serialNums == null) {
+            serialNums = new ArrayList<>();
+            this.mutationWriteRequests.put(objectId, serialNums);
         }
-        String hostName = Globals.serverHostNames.get(serverId);
-        int portNum = Globals.serverPortNums.get(serverId);
+        serialNums.add(requestId);
+    }
 
-        Logger.debug("Sending to ", serverId);
-        DataOutputStream dos;
-        try {
-            Socket socket = new Socket(hostName, portNum);
-
-            dos = new DataOutputStream(socket.getOutputStream());
-            dos.writeUTF(toBeSent);
-            dos.flush();
-            if (close) {
-                dos.close();
-                socket.close();
-                return null;
-            }
-
-            return socket;
-        } catch (Exception e) {
-            Logger.log("Unable to send message to " + serverId, e);
-            return null;
+    /**
+     * Adds the mutation request to the buffer.
+     *
+     * @param mutationReq
+     */
+    public synchronized void addMutationReq(MutationReq mutationReq) {
+        List<MutationReq> mutationReqs = mutationRequestBuffer.get(mutationReq.getObjectId());
+        if (mutationReqs == null) {
+            mutationReqs = new ArrayList<>();
         }
-    }
-
-    /**
-     * Sets new discoveredServers.
-     *
-     * @param discoveredServers New value of discoveredServers.
-     */
-    public void setDiscoveredServers(HashSet<Integer> discoveredServers) {
-        this.discoveredServers = discoveredServers;
-    }
-
-    /**
-     * Gets discoveredServers.
-     *
-     * @return Value of discoveredServers.
-     */
-    public HashSet<Integer> getDiscoveredServers() {
-        return discoveredServers;
-    }
-
-    /**
-     * Gets aliveServers.
-     *
-     * @return Value of aliveServers.
-     */
-    public HashSet<Integer> getAliveServers() {
-        return aliveServers;
-    }
-
-    /**
-     * Sets new aliveServers.
-     *
-     * @param aliveServers New value of aliveServers.
-     */
-    public void setAliveServers(HashSet<Integer> aliveServers) {
-        this.aliveServers = aliveServers;
-    }
-
-    /**
-     * Gets blockingList.
-     *
-     * @return Value of blockingList.
-     */
-    public HashSet<Integer> getBlockingList() {
-        return blockingList;
-    }
-
-    /**
-     * Sets new blockingList.
-     *
-     * @param blockingList New value of blockingList.
-     */
-    public void setBlockingList(HashSet<Integer> blockingList) {
-        this.blockingList = blockingList;
-    }
-
-    @Override
-    public String toString() {
-        return "Node{" +
-                "nodeId=" + nodeId +
-                ", hostName='" + hostName + '\'' +
-                ", serverPortNum=" + serverPortNum +
-                ", clientPortNum=" + clientPortNum +
-                ", discoveredServers=" + discoveredServers +
-                ", aliveServers=" + aliveServers +
-                ", blockingList=" + blockingList +
-                '}';
+        mutationReqs.add(mutationReq);
+        mutationRequestBuffer.put(mutationReq.getObjectId(), mutationReqs);
     }
 
     /**
      * Resets a node.
+     *
      * @throws Exception
      */
-    public void reset() throws Exception{
+    public void reset() throws Exception {
         discoveredServers.clear();
         aliveServers.clear();
         blockingList.clear();
@@ -608,4 +363,5 @@ public class Node extends Thread {
         mutationWriteRequests.clear();
         dataAccess.clearAllData();
     }
+
 }
