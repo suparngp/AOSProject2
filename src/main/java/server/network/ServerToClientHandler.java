@@ -9,7 +9,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -18,10 +17,8 @@ import java.util.List;
  */
 public class ServerToClientHandler extends Thread {
 
-    private Socket socket;
-    private Node node;
-
-    private static HashSet<Integer> discoveredNodes = new HashSet<>();
+    private final Socket socket;
+    private final Node node;
 
     public ServerToClientHandler(Node node, Socket socket) {
         super("ServerToClientHandler");
@@ -133,7 +130,7 @@ public class ServerToClientHandler extends Thread {
                         break;
                     }
 
-                    //set the serail order of requests
+                    //set the serial order of requests
                     req.setSerialNumbers(serialNums);
                     Logger.debug(req);
                     String objectId = req.getObjectId();
@@ -190,30 +187,4 @@ public class ServerToClientHandler extends Thread {
     }
 
 
-    /**
-     * Checks the account structure if all the fields are set.
-     *
-     * @param acc the account object
-     * @return true if the the account object is valid, otherwise false.
-     */
-    private boolean checkAccountStructure(Account acc) {
-        try {
-            if (acc == null || acc.getId() == null
-                    || acc.getId().isEmpty()
-                    || acc.getCurrentBalance() == null
-                    || acc.getCurrentBalance().doubleValue() == 0.0
-                    || acc.getOpeningBalance() == null
-                    || acc.getOpeningBalance().doubleValue() == 0
-                    || acc.getOwnerName() == null || acc.getOwnerName().isEmpty()) {
-                return false;
-            }
-
-            return true;
-        } catch (Exception e) {
-            Logger.log("Invalid account structure", e);
-            return false;
-        }
-
-
-    }
 }

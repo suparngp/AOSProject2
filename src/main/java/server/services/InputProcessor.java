@@ -10,12 +10,13 @@ import java.util.Scanner;
  */
 public class InputProcessor {
 
-    Scanner sc;
-    private Node node;
+    private final Scanner sc;
+    private final Node node;
 
     public InputProcessor(Node node) {
         this.node = node;
         sc = new Scanner(System.in);
+        displayWelcomeScreen();
     }
 
     /**
@@ -33,7 +34,7 @@ public class InputProcessor {
 
     }
 
-    public void displayMenu() {
+    void displayMenu() {
         StringBuilder sb = new StringBuilder();
         sb.append("1. Show node details").append("\n")
                 .append("2. Reset all configuration and data").append("\n")
@@ -94,7 +95,7 @@ public class InputProcessor {
 
     }
 
-    public void processBlocking() {
+    void processBlocking() {
         System.out.println("Please enter the server's id to block channel");
         String input = sc.nextLine();
         while (true) {
@@ -103,16 +104,16 @@ public class InputProcessor {
                 if (node.getBlockingList().contains(serverId)) {
                     System.out.println("Server already present in the blocking list");
                 } else {
+                    boolean add = node.getBlockingList().add(serverId);
+                    if (!add) {
+                        System.err.println("Unable to add server to blocking list");
+                    } else {
+                        System.out.println("Server " + serverId + " added to blocking list successfully");
+                        System.out.println("Testing reachability.....");
+                        System.out.println("Reachable: " + node.isPeerReachable(serverId));
+                    }
+                }
 
-                }
-                boolean add = node.getBlockingList().add(serverId);
-                if (!add) {
-                    System.err.println("Unable to add server to blocking list");
-                } else {
-                    System.out.println("Server " + serverId + " added to blocking list successfully");
-                    System.out.println("Testing reachability.....");
-                    System.out.println("Reachable: " + node.isPeerReachable(serverId));
-                }
                 break;
             } catch (Exception e) {
                 System.out.println("Please enter a valid server id");
@@ -121,7 +122,7 @@ public class InputProcessor {
         }
     }
 
-    public void processRemoveBlockingList() {
+    void processRemoveBlockingList() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Please enter the server's id to unblock channel");
         String input = sc.nextLine();
@@ -131,16 +132,16 @@ public class InputProcessor {
                 if (!node.getBlockingList().contains(serverId)) {
                     System.out.println("Server not present in the blocking list");
                 } else {
+                    boolean add = node.getBlockingList().remove(serverId);
+                    if (!add) {
+                        System.err.println("Unable to remove server from blocking list");
+                    } else {
+                        System.out.println("Server " + serverId + " from blocking list successfully");
+                        System.out.println("Testing reachability.....");
+                        System.out.println("Reachable: " + node.isPeerReachable(serverId));
+                    }
+                }
 
-                }
-                boolean add = node.getBlockingList().remove(serverId);
-                if (!add) {
-                    System.err.println("Unable to remove server from blocking list");
-                } else {
-                    System.out.println("Server " + serverId + " from blocking list successfully");
-                    System.out.println("Testing reachability.....");
-                    System.out.println("Reachable: " + node.isPeerReachable(serverId));
-                }
                 break;
             } catch (Exception e) {
                 System.out.println("Please enter a valid server id");
