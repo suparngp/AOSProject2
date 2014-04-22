@@ -1,4 +1,4 @@
-package server.data;
+package server.services;
 
 import com.google.gson.Gson;
 import common.messages.Account;
@@ -8,7 +8,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * Data Access API to perform CRUD operations on the data file.
+ * Data Access API to perform CRUD operations on the services file.
  * Created by suparngupta on 4/4/14.
  */
 public class DataAccess extends Thread {
@@ -19,7 +19,7 @@ public class DataAccess extends Thread {
     private BufferedReader br;
 
     /**
-     * Constructor to initialize the data access API.
+     * Constructor to initialize the services access API.
      * Loads all the records in the memory
      */
     public DataAccess(String fileName) {
@@ -46,7 +46,7 @@ public class DataAccess extends Thread {
     }
 
     /**
-     * Creates a new account and writes it to the data file.
+     * Creates a new account and writes it to the services file.
      *
      * @param account the new account object to be added
      * @return the new account as passed
@@ -133,7 +133,7 @@ public class DataAccess extends Thread {
 
 
     /**
-     * Flushes the lates accounts to the data file.
+     * Flushes the lates accounts to the services file.
      * It first removes all the records and then appends the latest records
      * from the accounts list.
      *
@@ -159,7 +159,7 @@ public class DataAccess extends Thread {
             bw.flush();
             bw.close();
         } catch (Exception e) {
-            Logger.error("Unable to flush the latest accounts data to the file", e);
+            Logger.error("Unable to flush the latest accounts services to the file", e);
             throw e;
         }
     }

@@ -43,7 +43,8 @@ public class InputProcessor {
                 .append("2. Read an existing object\n")
                 .append("3. Update an existing object\n")
                 .append("4. Remove an existing object\n")
-                .append("5. Exit the system\n");
+                .append("5. Add server to blocking list\n")
+                .append("6. Exit the system\n");
         System.out.println(sb);
     }
 
@@ -72,6 +73,10 @@ public class InputProcessor {
                     break;
                 }
                 case 5: {
+                    processBlockingList();
+                    break;
+                }
+                case 6: {
                     proceed = false;
                     break;
                 }
@@ -206,6 +211,38 @@ public class InputProcessor {
         catch(Exception e){
             Logger.error("Unable to delete Object", e);
             return null;
+        }
+    }
+
+    public void processBlockingList(){
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Please enter the server's id to block channel");
+        String input = sc.nextLine();
+        while(true){
+            try{
+                int serverId = Integer.parseInt(input.trim());
+                if(clientNode.getBlockingList().contains(serverId)){
+                    System.out.println("Server already present in the blocking list");
+                }
+                else{
+
+                }
+                boolean add = clientNode.getBlockingList().add(serverId);
+                if(!add){
+                    System.err.println("Unable to add server to blocking list");
+                }
+                else{
+                    System.out.println("Server " + serverId + " added to blocking list successfully");
+                    System.out.println("Testing reachability.....");
+                    System.out.println("Reachable: " + clientNode.isServerReachable(serverId));
+                }
+                break;
+            }
+
+            catch(Exception e){
+                System.out.println("Please enter a valid server id");
+                input = sc.nextLine();
+            }
         }
     }
 }

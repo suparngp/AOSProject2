@@ -112,7 +112,7 @@ public class ServerToClientHandler extends Thread {
                 }
                 case MUTATION_WRITE_REQ: {
                     //get the write request, assign it a new serial number and add it to the queue.
-                    //lock the data structure
+                    //lock the services structure
                     Logger.log("Received MUTATION_WRITE_REQ");
                     node.getLock().lock();
                     MutationWriteReq req = (MutationWriteReq) MessageParser

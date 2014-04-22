@@ -14,12 +14,12 @@ import java.util.List;
  * Created by suparngupta on 4/4/14.
  */
 public class Globals {
-    public static String dataFileName = "data.txt";
+    public static String dataFileName = "services.txt";
     public static int serverCount = 3;
     public static int serverChannelPort = 9999;
     public static int discoveredServers = 0;
     public static List<Integer> discoveryMessages = new ArrayList<Integer>();
-
+    public static int heartbeatFrequency = 5000;
     public static HashMap<Integer, String> serverHostNames = new HashMap<>();
     public static HashMap<Integer, Integer> serverPortNums = new HashMap<>();
 

@@ -7,7 +7,7 @@ import common.messages.MessageType;
 import common.messages.MutationReq;
 import common.utils.Logger;
 import common.utils.MessageParser;
-import server.data.DataAccess;
+import server.services.DataAccess;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -38,6 +38,8 @@ public class Node extends Thread {
     private HashMap<String, List<MutationReq>> mutationRequestBuffer;
     private HashMap<String, List<String>> mutationWriteRequests;
     private ReentrantLock lock;
+    private HashSet<Integer> discoveredServers;
+    private HashSet<Integer> aliveServers;
 
     /**
      * Creates a new node
@@ -61,6 +63,8 @@ public class Node extends Thread {
         this.preparedAccess = new DataAccess(this.nodeId + "_prepared_data.txt");
         this.mutationRequestBuffer = new HashMap<>();
         this.mutationWriteRequests = new HashMap<>();
+        this.discoveredServers = new HashSet<>();
+        this.aliveServers = new HashSet<>();
         this.lock = new ReentrantLock();
         init();
         Logger.log("Created Node ", this);
@@ -541,4 +545,39 @@ public class Node extends Thread {
         }
     }
 
+    /**
+     * Sets new discoveredServers.
+     *
+     * @param discoveredServers New value of discoveredServers.
+     */
+    public void setDiscoveredServers(HashSet<Integer> discoveredServers) {
+        this.discoveredServers = discoveredServers;
+    }
+
+    /**
+     * Gets discoveredServers.
+     *
+     * @return Value of discoveredServers.
+     */
+    public HashSet<Integer> getDiscoveredServers() {
+        return discoveredServers;
+    }
+
+    /**
+     * Gets aliveServers.
+     *
+     * @return Value of aliveServers.
+     */
+    public HashSet<Integer> getAliveServers() {
+        return aliveServers;
+    }
+
+    /**
+     * Sets new aliveServers.
+     *
+     * @param aliveServers New value of aliveServers.
+     */
+    public void setAliveServers(HashSet<Integer> aliveServers) {
+        this.aliveServers = aliveServers;
+    }
 }

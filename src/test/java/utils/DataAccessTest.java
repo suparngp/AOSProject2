@@ -5,7 +5,7 @@ import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import server.data.DataAccess;
+import server.services.DataAccess;
 
 /**
  * DataAccess Tester.
@@ -20,7 +20,7 @@ public class DataAccessTest {
 
     @Before
     public void before() throws Exception {
-        new DataAccess("data.txt").clearAllData();
+        new DataAccess("services.txt").clearAllData();
     }
 
     @After
@@ -34,7 +34,7 @@ public class DataAccessTest {
     public void testCreateAccount() throws Exception {
 
         Account acc = Commons.createRandomAccount();
-        DataAccess access = new DataAccess("data.txt");
+        DataAccess access = new DataAccess("services.txt");
         acc = access.createAccount(acc);
         Account stored = access.getAccount(acc.getId());
 
@@ -57,7 +57,7 @@ public class DataAccessTest {
 
         Account acc = Commons.createRandomAccount();
 
-        DataAccess access = new DataAccess("data.txt");
+        DataAccess access = new DataAccess("services.txt");
         access.createAccount(acc);
         double prev = acc.getCurrentBalance();
         acc.setCurrentBalance(20000.0);
@@ -77,7 +77,7 @@ public class DataAccessTest {
     public void testRemoveAccount() throws Exception {
 
         Account acc = Commons.createRandomAccount();
-        DataAccess access = new DataAccess("data.txt");
+        DataAccess access = new DataAccess("services.txt");
         access.createAccount(acc);
         access.removeAccount(acc.getId());
 
@@ -95,7 +95,7 @@ public class DataAccessTest {
     public void testGetAccount() throws Exception {
 
         Account acc = Commons.createRandomAccount();
-        DataAccess access = new DataAccess("data.txt");
+        DataAccess access = new DataAccess("services.txt");
         access.createAccount(acc);
         Account stored = access.getAccount(acc.getId());
 
@@ -117,7 +117,7 @@ public class DataAccessTest {
     public void testGetAllAccounts() throws Exception {
         Account[] accounts = {Commons.createRandomAccount(), Commons.createRandomAccount(), Commons.createRandomAccount()};
 
-        DataAccess access = new DataAccess("data.txt");
+        DataAccess access = new DataAccess("services.txt");
         for (Account acc : accounts) {
             access.createAccount(acc);
         }
@@ -126,7 +126,7 @@ public class DataAccessTest {
 
     @Test
     public void testClearAllData() throws Exception {
-        DataAccess access = new DataAccess("data.txt");
+        DataAccess access = new DataAccess("services.txt");
         access.clearAllData();
         Assert.assertEquals(access.getAllAccounts().isEmpty(), true);
     }
