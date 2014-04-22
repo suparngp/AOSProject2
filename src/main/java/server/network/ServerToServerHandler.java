@@ -74,6 +74,7 @@ public class ServerToServerHandler extends Thread {
                     dos.writeUTF(toBeSent);
                     break;
                 }
+
                 case MUTATION_PROCEED: {
                     Logger.log("MUTATION_PROCEED Received");
                     MutationWriteReq req = (MutationWriteReq) MessageParser.deserializeObject(wrapper.getMessageBody());

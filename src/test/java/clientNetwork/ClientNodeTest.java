@@ -117,10 +117,15 @@ public class ClientNodeTest {
 
     @Test
     public void testSendMutationRequestCreate() throws Exception{
-        Account acc = Commons.createRandomAccount();
+        long startTime = System.currentTimeMillis();
         ClientNode node = new ClientNode(90);
-        acc.setId(node.generateObjectId());
-        node.sendMutationRequest(acc, MutationType.CREATE, acc.getId());
+        Account acc = Commons.createRandomAccount();
+        for(int i = 0; i < 100; i++){
+            acc.setId(node.generateObjectId());
+            node.sendMutationRequest(acc, MutationType.CREATE, acc.getId());
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("Time for 100 create requests" + (end - startTime));
     }
     @Test
     public void testSendMutationRequestUpdate() throws Exception{
