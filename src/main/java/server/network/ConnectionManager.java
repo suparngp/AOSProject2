@@ -1,16 +1,15 @@
 package server.network;
 
+import common.Globals;
 import common.messages.InfoMessage;
 import common.messages.MessageType;
 import common.messages.WrapperMessage;
 import common.utils.Logger;
 import common.utils.MessageParser;
-import common.Globals;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -53,11 +52,12 @@ public class ConnectionManager {
                     //create a new socket with the server
                     Socket socket;
                     try{
-                        socket = new Socket(Globals.serverHostNames.get(serverId)
-                                , Globals.serverPortNums.get(serverId));
-                        Logger.log("Socket connected to ", socket.getLocalAddress().getHostAddress(), socket.getPort());
+//                        socket = new Socket(Globals.serverHostNames.get(serverId)
+//                                , Globals.serverPortNums.get(serverId));
+//                        Logger.log("Socket connected to ", socket.getLocalAddress().getHostAddress(), socket.getPort());
                         InfoMessage info = new InfoMessage(node.getNodeId(), serverId);
                         String message = MessageParser.createWrapper(info, MessageType.SERVER_INTRO);
+                        socket = node.sendMessage(message, serverId, false);
                         DataInputStream dis = new DataInputStream(socket.getInputStream());
                         DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
                         dos.writeUTF(message);
@@ -93,20 +93,29 @@ public class ConnectionManager {
 
 
             //if everyone has been discovered, then send the discovery complete message to everyone else.
-            HashMap<String, Integer> receivers = new HashMap<>();
-            for(int serverId: discoveredNodes){
-                receivers.put(Globals.serverHostNames.get(serverId)
-                        , Globals.serverPortNums.get(serverId));
-            }
 
-            if(!receivers.isEmpty()){
-                Logger.log("Node Discovery is complete, sending the DISCOVERY_COMPLETE message to everyone else.");
+//            HashMap<String, Integer> receivers = new HashMap<>();
+//            for(int serverId: discoveredNodes){
+//                receivers.put(Globals.serverHostNames.get(serverId)
+//                        , Globals.serverPortNums.get(serverId));
+//            }
+//
+//            if(!receivers.isEmpty()){
+//                Logger.log("Node Discovery is complete, sending the DISCOVERY_COMPLETE message to everyone else.");
+//                InfoMessage info = new InfoMessage(this.node.getNodeId(), -1);
+//                String toBeSent = MessageParser.createWrapper(info, MessageType.DISCOVERY_COMPLETE);
+//                this.node.broadcastMessage(receivers, toBeSent);
+//                Logger.log("DISCOVERY_COMPLETE message broadcast completed successfully.");
+//            }
+
+            //if everyone has been discovered, then send the discovery complete message to everyone else.
+            Logger.log("Node Discovery is complete, sending the DISCOVERY_COMPLETE message to everyone else.");
+            for(int serverId: discoveredNodes){
                 InfoMessage info = new InfoMessage(this.node.getNodeId(), -1);
                 String toBeSent = MessageParser.createWrapper(info, MessageType.DISCOVERY_COMPLETE);
-                this.node.broadcastMessage(receivers, toBeSent);
-                Logger.log("DISCOVERY_COMPLETE message successfully broadcasted.");
+                node.sendMessage(toBeSent, serverId, true);
             }
-
+            Logger.log("DISCOVERY_COMPLETE message broadcast completed successfully.");
             node.getServerToClientChannel().init().start();
         }
 

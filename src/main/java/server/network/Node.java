@@ -147,12 +147,12 @@ public class Node extends Thread {
      * @param message  the message
      * @throws Exception
      */
-    public void sendMessage(String hostName, int portNum, String message) throws Exception {
-        Socket socket = new Socket(hostName, portNum);
-        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-        dos.writeUTF(message);
-        dos.flush();
-    }
+//    public void sendMessage(String hostName, int portNum, String message) throws Exception {
+//        Socket socket = new Socket(hostName, portNum);
+//        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+//        dos.writeUTF(message);
+//        dos.flush();
+//    }
 
     /**
      * Broadcasts the message tp the given hosts-ports map.
@@ -161,15 +161,15 @@ public class Node extends Thread {
      * @param message     the message
      * @throws Exception
      */
-    public void broadcastMessage(HashMap<String, Integer> hostPortMap, String message) throws Exception {
-        for (String host : hostPortMap.keySet()) {
-            if (host.equals(this.hostName)) {
-                continue;
-            }
-            int port = hostPortMap.get(host);
-            sendMessage(host, port, message);
-        }
-    }
+//    public void broadcastMessage(HashMap<String, Integer> hostPortMap, String message) throws Exception {
+//        for (String host : hostPortMap.keySet()) {
+//            if (host.equals(this.hostName)) {
+//                continue;
+//            }
+//            int port = hostPortMap.get(host);
+//            sendMessage(host, port, message);
+//        }
+//    }
 
     @Override
     public String toString() {
@@ -215,67 +215,6 @@ public class Node extends Thread {
         this.clientPortNum = clientPortNum;
     }
 
-
-    /**
-     * Adds the object to the locked list.
-     *
-     * @param objectId the object id
-     * @return true if object is locked, else false.
-     */
-    public synchronized boolean lockObject(String objectId, int clientId) {
-        Account acc = this.dataAccess.getAccount(objectId);
-        Logger.debug("Account found", acc);
-        if (acc == null
-                || (this.lockedObjects.get(objectId) != null
-                && this.lockedObjects.get(objectId) != clientId)) {
-            return false;
-        } else if (this.lockedObjects.get(objectId) == null) {
-            lockedObjects.put(objectId, clientId);
-            return true;
-        } else if (this.lockedObjects.get(objectId) == clientId) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public synchronized boolean freeObject(String objectId, int clientId) {
-        if (this.lockedObjects.get(objectId) == null
-                || this.lockedObjects.get(objectId) != clientId) {
-            return false;
-        }
-        this.lockedObjects.remove(objectId);
-        return true;
-    }
-
-    /**
-     * Checks if the required object is locked by the specified client.
-     *
-     * @param objectId the object id
-     * @param clientId the client id.
-     * @return
-     */
-    public boolean isObjectLocked(String objectId, int clientId) {
-        return !(this.lockedObjects.get(objectId) == null || this.lockedObjects.get(objectId) != clientId);
-    }
-
-    /**
-     * Gets inProcess.
-     *
-     * @return Value of inProcess.
-     */
-    public boolean isInProcess() {
-        return inProcess;
-    }
-
-    /**
-     * Sets new inProcess.
-     *
-     * @param inProcess New value of inProcess.
-     */
-    public void setInProcess(boolean inProcess) {
-        this.inProcess = inProcess;
-    }
 
     /**
      * Gets dataAccess.
@@ -404,7 +343,8 @@ public class Node extends Thread {
         try {
             boolean result = false;
             String toBeSent = MessageParser.createWrapper(new HeartBeat(this.nodeId, peerId), MessageType.HEARTBEAT);
-            Socket socket = new Socket(Globals.serverHostNames.get(peerId), Globals.serverPortNums.get(peerId));
+//            Socket socket = new Socket(Globals.serverHostNames.get(peerId), Globals.serverPortNums.get(peerId));
+            Socket socket = sendMessage(toBeSent, peerId, false);
             DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
             DataInputStream dis = new DataInputStream(socket.getInputStream());
 
