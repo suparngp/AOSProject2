@@ -1,7 +1,0 @@
-{"id":"1397093406354-0-1","ownerName":"Suparn","openingBalance":100000.0,"currentBalance":100000.0,"createdAt":"Apr 9, 2014 8:30:13 PM","updatedAt":"Apr 9, 2014 8:30:13 PM"}
-{"id":"1397097840837-0-1","ownerName":"Suparn","openingBalance":100000.0,"currentBalance":100000.0,"createdAt":"Apr 9, 2014 9:44:01 PM","updatedAt":"Apr 9, 2014 9:44:01 PM"}
-{"id":"1397096917415-0-1","ownerName":"Suparn","openingBalance":10000.0,"currentBalance":10000.0,"createdAt":"Apr 9, 2014 9:28:45 PM","updatedAt":"Apr 9, 2014 9:28:45 PM"}
-{"id":"1397093476388-0-1","ownerName":"Suparn","openingBalance":100000.0,"currentBalance":100000.0,"createdAt":"Apr 9, 2014 8:31:22 PM","updatedAt":"Apr 9, 2014 8:31:22 PM"}
-{"id":"1397097783915-0-1","ownerName":"Suparn","openingBalance":100000.0,"currentBalance":100000.0,"createdAt":"Apr 9, 2014 9:43:04 PM","updatedAt":"Apr 9, 2014 9:43:04 PM"}
-{"id":"1397095450109-0-1","ownerName":"Suparn","openingBalance":123456.0,"currentBalance":123456.0,"createdAt":"Apr 9, 2014 9:04:15 PM","updatedAt":"Apr 9, 2014 9:04:28 PM"}
-{"id":"1397097978102-0-1","ownerName":"Suparn","openingBalance":100000.0,"currentBalance":100000.0,"createdAt":"Apr 9, 2014 9:46:18 PM","updatedAt":"Apr 9, 2014 9:46:18 PM"}
