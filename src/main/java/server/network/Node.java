@@ -40,6 +40,7 @@ public class Node extends Thread {
     private ReentrantLock lock;
     private HashSet<Integer> discoveredServers;
     private HashSet<Integer> aliveServers;
+    private HashSet<Integer> blockingList;
 
     /**
      * Creates a new node
@@ -66,6 +67,7 @@ public class Node extends Thread {
         this.discoveredServers = new HashSet<>();
         this.aliveServers = new HashSet<>();
         this.lock = new ReentrantLock();
+        this.blockingList = new HashSet<>();
         init();
         Logger.log("Created Node ", this);
 
@@ -143,14 +145,7 @@ public class Node extends Thread {
         this.hostName = hostName;
     }
 
-    /**
-     * Sends a message to a node with the specified host name on the given port number
-     *
-     * @param hostName the remote host's name, ip address
-     * @param portNum  the port number
-     * @param message  the message
-     * @throws Exception
-     */
+
 //    public void sendMessage(String hostName, int portNum, String message) throws Exception {
 //        Socket socket = new Socket(hostName, portNum);
 //        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
@@ -158,13 +153,7 @@ public class Node extends Thread {
 //        dos.flush();
 //    }
 
-    /**
-     * Broadcasts the message tp the given hosts-ports map.
-     *
-     * @param hostPortMap the host port map hostName <-> serverPortNum
-     * @param message     the message
-     * @throws Exception
-     */
+
 //    public void broadcastMessage(HashMap<String, Integer> hostPortMap, String message) throws Exception {
 //        for (String host : hostPortMap.keySet()) {
 //            if (host.equals(this.hostName)) {
@@ -174,14 +163,6 @@ public class Node extends Thread {
 //            sendMessage(host, port, message);
 //        }
 //    }
-
-    @Override
-    public String toString() {
-        return "Node{" +
-                "nodeId=" + nodeId +
-                ", hostName='" + hostName + '\'' +
-                ", serverPortNum=" + serverPortNum + '}';
-    }
 
     /**
      * Gets serverToClientChannel.
@@ -521,6 +502,9 @@ public class Node extends Thread {
      * @return the socket used to send the message
      */
     public Socket sendMessage(String toBeSent, int serverId, boolean close) {
+        if(blockingList.contains(serverId)){
+            return null;
+        }
         String hostName = Globals.serverHostNames.get(serverId);
         int portNum = Globals.serverPortNums.get(serverId);
 
@@ -579,5 +563,49 @@ public class Node extends Thread {
      */
     public void setAliveServers(HashSet<Integer> aliveServers) {
         this.aliveServers = aliveServers;
+    }
+
+    /**
+     * Gets blockingList.
+     *
+     * @return Value of blockingList.
+     */
+    public HashSet<Integer> getBlockingList() {
+        return blockingList;
+    }
+
+    /**
+     * Sets new blockingList.
+     *
+     * @param blockingList New value of blockingList.
+     */
+    public void setBlockingList(HashSet<Integer> blockingList) {
+        this.blockingList = blockingList;
+    }
+
+    @Override
+    public String toString() {
+        return "Node{" +
+                "nodeId=" + nodeId +
+                ", hostName='" + hostName + '\'' +
+                ", serverPortNum=" + serverPortNum +
+                ", clientPortNum=" + clientPortNum +
+                ", discoveredServers=" + discoveredServers +
+                ", aliveServers=" + aliveServers +
+                ", blockingList=" + blockingList +
+                '}';
+    }
+
+    /**
+     * Resets a node.
+     * @throws Exception
+     */
+    public void reset() throws Exception{
+        discoveredServers.clear();
+        aliveServers.clear();
+        blockingList.clear();
+        mutationRequestBuffer.clear();
+        mutationWriteRequests.clear();
+        dataAccess.clearAllData();
     }
 }
