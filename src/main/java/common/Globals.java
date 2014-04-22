@@ -19,7 +19,7 @@ public class Globals {
     public static int serverChannelPort = 9999;
     public static int discoveredServers = 0;
     public static List<Integer> discoveryMessages = new ArrayList<Integer>();
-    public static int heartbeatFrequency = 5000;
+    public static int heartbeatFrequency = 20000;
     public static HashMap<Integer, String> serverHostNames = new HashMap<>();
     public static HashMap<Integer, Integer> serverPortNums = new HashMap<>();
 

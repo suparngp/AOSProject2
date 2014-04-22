@@ -6,6 +6,7 @@ import common.messages.MessageType;
 import common.messages.WrapperMessage;
 import common.utils.Logger;
 import common.utils.MessageParser;
+import server.services.InputProcessor;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -117,6 +118,7 @@ public class ConnectionManager {
 
             new HeartBeatRunner(node).start();
             node.getServerToClientChannel().init().start();
+            new InputProcessor(node).processInput();
         }
 
         catch (Exception e){

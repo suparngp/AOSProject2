@@ -69,6 +69,9 @@ public class ServerToServerHandler extends Thread {
 
                 case HEARTBEAT: {
                     HeartBeat beat = (HeartBeat) MessageParser.deserializeObject(wrapper.getMessageBody());
+
+                    if(beat.getSenderId() != node.getNodeId())
+                        node.getDiscoveredServers().add(beat.getSenderId());
                     Logger.debug(beat);
                     String toBeSent = MessageParser.createWrapper(beat, MessageType.HEARTBEAT_ECHO);
                     dos.writeUTF(toBeSent);
