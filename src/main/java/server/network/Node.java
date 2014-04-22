@@ -501,7 +501,7 @@ public class Node extends Thread {
      * @param mutationReq
      */
     public synchronized void addMutationReq(MutationReq mutationReq) {
-        List<MutationReq> mutationReqs = mutationRequestBuffer.get(mutationReq.getRequestId());
+        List<MutationReq> mutationReqs = mutationRequestBuffer.get(mutationReq.getObjectId());
         if (mutationReqs == null) {
             mutationReqs = new ArrayList<>();
         }

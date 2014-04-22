@@ -96,11 +96,15 @@ public class ServerToClientHandler extends Thread {
                     dos.writeUTF(toBeSent);
                     break;
                 }
+
+
                 case MUTATION_REQ: {
                     MutationReq mutationReq = (MutationReq) MessageParser.deserializeObject(wrapper.getMessageBody());
+                    node.getLock().lock();
                     node.addMutationReq(mutationReq);
                     MutationAck ack = new MutationAck(mutationReq, true);
                     String toBeSent = MessageParser.createWrapper(ack, MessageType.MUTATION_ACK);
+                    node.getLock().unlock();
                     dos.writeUTF(toBeSent);
                     Logger.debug(node.getMutationRequestBuffer());
                     Logger.debug(node.getMutationWriteRequests());
@@ -128,6 +132,8 @@ public class ServerToClientHandler extends Thread {
                         dos.writeUTF(toBeSent);
                         break;
                     }
+
+                    //set the serail order of requests
                     req.setSerialNumbers(serialNums);
                     Logger.debug(req);
                     String objectId = req.getObjectId();

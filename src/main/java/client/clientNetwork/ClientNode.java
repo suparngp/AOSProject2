@@ -7,7 +7,6 @@ import common.utils.MessageParser;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,233 +46,6 @@ public class ClientNode {
         int server2 = (server1 + 1) % 7;
         int server3 = (server2 + 1) % 7;
 
-        return null;
-    }
-
-    public Account read(String id) throws Exception {
-        try {
-            ObjectReq req;
-
-            Logger.debug("I am here!");
-            String objectId = id;
-            int serverId = this.computeServerId(objectId);
-            int clientId = this.getNodeId();
-
-            req = new ObjectReq(objectId, serverId, clientId);
-            String toBeSent = MessageParser.createWrapper(req, MessageType.SEEK_READ_PERMISSION);
-
-            String hostName = Globals.serverHostNames.get(serverId);
-            int portNum = Globals.serverClientPortNums.get(serverId);
-
-            Socket socket = new Socket(hostName, portNum);
-
-            //suppose socket is connected to the server.
-
-            DataInputStream dis = new DataInputStream(socket.getInputStream());
-            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-            dos.writeUTF(toBeSent);
-            dos.flush();
-
-            //read reply from server
-            String receivedString = dis.readUTF();
-            WrapperMessage wrapper = MessageParser.parseMessageJSON(receivedString);
-            Logger.debug(wrapper.getMessageType());
-            Logger.debug(MessageParser.deserializeObject(wrapper.getMessageBody()));
-            dis.close();
-            dos.close();
-
-            if (wrapper.getMessageType() == MessageType.GRANT_READ_PERMISSION) {
-                //send create object request
-
-                toBeSent = MessageParser.createWrapper(req, MessageType.READ_OBJ_REQ);
-
-                hostName = Globals.serverHostNames.get(serverId);
-                portNum = Globals.serverClientPortNums.get(serverId);
-
-                socket = new Socket(hostName, portNum);
-
-                //suppose socket is connected to the server.
-
-                dis = new DataInputStream(socket.getInputStream());
-                dos = new DataOutputStream(socket.getOutputStream());
-                dos.writeUTF(toBeSent);
-                dos.flush();
-
-                //read reply from server;
-                //server returns requested object
-
-                receivedString = dis.readUTF();
-                wrapper = MessageParser.parseMessageJSON(receivedString);
-                Logger.debug(wrapper.getMessageType());
-                Logger.debug(MessageParser.deserializeObject(wrapper.getMessageBody()));
-                dis.close();
-                dos.close();
-                if (wrapper.getMessageType() == MessageType.READ_OBJ_SUCCESS) {
-                    //if returned message is success then return the object
-                    AccountMessage accMsg = (AccountMessage) MessageParser
-                            .deserializeObject(wrapper.getMessageBody());
-
-                    return accMsg.getAccount();
-                } else {
-                    Logger.error("Account doesn't exist");
-                }
-            } else {
-                Logger.log("Unable to read account");
-            }
-            return null;
-        } catch (Exception e) {
-            Logger.error("Error reading object");
-        }
-        return null;
-    }
-
-    public Account update(String id, String ownerName, Double opBal, Double curBal) throws Exception {
-
-        Account acc = new Account(id);
-        acc.setId(id);
-        acc.setOwnerName(ownerName);
-        acc.setOpeningBalance(opBal);
-        acc.setCurrentBalance(curBal);
-
-        try {
-            ObjectReq req;
-
-            Logger.debug("I am here!");
-            String objectId = id;
-            int serverId = this.computeServerId(objectId);
-            int clientId = this.getNodeId();
-
-            req = new ObjectReq(objectId, serverId, clientId);
-            String toBeSent = MessageParser.createWrapper(req, MessageType.SEEK_UPDATE_PERMISSION);
-
-            String hostName = Globals.serverHostNames.get(serverId);
-            int portNum = Globals.serverClientPortNums.get(serverId);
-
-            Socket socket = new Socket(hostName, portNum);
-
-            //suppose socket is connected to the server.
-
-            DataInputStream dis = new DataInputStream(socket.getInputStream());
-            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-            dos.writeUTF(toBeSent);
-            dos.flush();
-
-            //read reply from server
-            String recMessage = dis.readUTF();
-            WrapperMessage wrapper = MessageParser.parseMessageJSON(recMessage);
-            Logger.debug(wrapper.getMessageType());
-            Logger.debug(MessageParser.deserializeObject(wrapper.getMessageBody()));
-            dis.close();
-            dos.close();
-            if (wrapper.getMessageType() == MessageType.GRANT_UPDATE_PERMISSION) {
-                //send update object request
-                AccountMessage accMsg = new AccountMessage(serverId, clientId, acc);
-                toBeSent = MessageParser.createWrapper(accMsg, MessageType.UPDATE_OBJ_REQ);
-
-                hostName = Globals.serverHostNames.get(serverId);
-                portNum = Globals.serverClientPortNums.get(serverId);
-
-                socket = new Socket(hostName, portNum);
-
-                //suppose socket is connected to the server.
-
-                dis = new DataInputStream(socket.getInputStream());
-                dos = new DataOutputStream(socket.getOutputStream());
-                dos.writeUTF(toBeSent);
-                dos.flush();
-
-                //receive reply from server.
-                //if it is update success then return the object created
-                recMessage = dis.readUTF();
-                wrapper = MessageParser.parseMessageJSON(recMessage);
-                Logger.debug(wrapper.getMessageType());
-                Logger.debug(MessageParser.deserializeObject(wrapper.getMessageBody()));
-                dis.close();
-                dos.close();
-                if (wrapper.getMessageType() == MessageType.UPDATE_OBJ_SUCCESS) {
-                    //if returned message is success then return the object
-                    accMsg = (AccountMessage) MessageParser
-                            .deserializeObject(wrapper.getMessageBody());
-                    return accMsg.getAccount();
-                }
-            }
-        } catch (IOException e) {
-            Logger.error("Error updating object");
-        }
-
-        return null;
-    }
-
-    public Account delete(String id) {
-        try {
-            ObjectReq req;
-
-            Logger.debug("I am here!");
-            String objectId = id;
-            int serverId = this.computeServerId(objectId);
-            int clientId = this.getNodeId();
-
-            req = new ObjectReq(objectId, serverId, clientId);
-            String toBeSent = MessageParser.createWrapper(req, MessageType.SEEK_DELETE_PERMISSION);
-
-            String hostName = Globals.serverHostNames.get(serverId);
-            int portNum = Globals.serverClientPortNums.get(serverId);
-
-            Socket socket = new Socket(hostName, portNum);
-
-            //suppose socket is connected to the server.
-
-            DataInputStream dis = new DataInputStream(socket.getInputStream());
-            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-            dos.writeUTF(toBeSent);
-            dos.flush();
-
-            //read reply from server
-            String receivedString = dis.readUTF();
-            WrapperMessage wrapper = MessageParser.parseMessageJSON(receivedString);
-            Logger.debug(wrapper.getMessageType());
-            Logger.debug(MessageParser.deserializeObject(wrapper.getMessageBody()));
-            dis.close();
-            dos.close();
-
-            if (wrapper.getMessageType() == MessageType.GRANT_DELETE_PERMISSION) {
-                //send create object request
-
-                toBeSent = MessageParser.createWrapper(req, MessageType.DELETE_OBJ_REQ);
-
-                hostName = Globals.serverHostNames.get(serverId);
-                portNum = Globals.serverClientPortNums.get(serverId);
-
-                socket = new Socket(hostName, portNum);
-
-                //suppose socket is connected to the server.
-
-                dis = new DataInputStream(socket.getInputStream());
-                dos = new DataOutputStream(socket.getOutputStream());
-                dos.writeUTF(toBeSent);
-                dos.flush();
-
-                //read reply from server;
-                //server returns requested object
-
-                receivedString = dis.readUTF();
-                wrapper = MessageParser.parseMessageJSON(receivedString);
-                Logger.debug(wrapper.getMessageType());
-                Logger.debug(MessageParser.deserializeObject(wrapper.getMessageBody()));
-                dis.close();
-                dos.close();
-                if (wrapper.getMessageType() == MessageType.DELETE_OBJ_SUCCESS) {
-                    //if returned message is success then return the object
-                    AccountMessage accMsg = (AccountMessage) MessageParser
-                            .deserializeObject(wrapper.getMessageBody());
-
-                    return accMsg.getAccount();
-                }
-            }
-            return null;
-        } catch (Exception e) {
-            Logger.error("Error deleting object");
-        }
         return null;
     }
 
@@ -425,17 +197,14 @@ public class ClientNode {
     public PrimaryInfo getPrimaryServer(List<Integer> servers, String objectId) throws Exception{
         List<PrimaryInfo> info = new ArrayList<>();
         for(int serverId: servers){
-            String hostName = Globals.serverHostNames.get(serverId);
-            int portNum = Globals.serverClientPortNums.get(serverId);
             ObjectReq req = new ObjectReq(objectId, serverId, this.nodeId);
             String toBeSent = MessageParser.createWrapper(req, MessageType.WHO_IS_PRIMARY);
             Socket socket = sendMessage(toBeSent, serverId, false);
-            DataInputStream dis = new DataInputStream(socket.getInputStream());
-            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
             if(socket == null){
                 continue;
             }
-
+            DataInputStream dis = new DataInputStream(socket.getInputStream());
+            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
             WrapperMessage wrapper = MessageParser.parseMessageJSON(dis.readUTF());
 
             if(wrapper.getMessageType() == MessageType.PRIMARY_INFO){
@@ -451,10 +220,6 @@ public class ClientNode {
         return info.get(0);
     }
 
-    public String generateRequestId(String objectId){
-        return UUID.randomUUID().toString();
-    }
-
     public boolean sendMutationRequest(Account account, MutationType mutationType, String objectId) throws Exception{
         List<Integer> servers = getAvailableServers(objectId);
         if(servers.size() < 2){
@@ -468,7 +233,8 @@ public class ClientNode {
             return false;
         }
 
-        //send the mutation request to all the servers.
+
+        //create a mutation request object
         String requestId = UUID.randomUUID().toString();
         MutationReq mutationReq = new MutationReq();
         mutationReq.setClientId(this.nodeId);
@@ -476,6 +242,9 @@ public class ClientNode {
         mutationReq.setObjectId(account.getId());
         mutationReq.setRequestId(requestId);
         mutationReq.setRequestType(mutationType);
+
+
+        //send the mutation request to all the servers.
         List<Integer> successServers = new ArrayList<>();
         for(int serverId: servers){
             mutationReq.setServerId(serverId);
