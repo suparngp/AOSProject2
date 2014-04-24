@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>server.Main</OriginalElement>
+  <nodes>
+    <node x="1056.9380555555554" y="966.0">server.network.ServerToClientChannel</node>
+    <node x="53.0" y="1790.0">server.network.HeartBeatRunner</node>
+    <node x="993.6401303538173" y="1837.998137802607">common.messages.WrapperMessage</node>
+    <node x="36.5" y="999.5">common.messages.HeartBeat</node>
+    <node x="672.75" y="604.5">common.messages.MutationAck</node>
+    <node x="1015.75" y="582.0">common.messages.PrimaryInfo</node>
+    <node x="616.0" y="89.0">common.messages.MutationType</node>
+    <node x="1175.25" y="324.0">common.messages.AccountMessage</node>
+    <node x="793.0" y="2227.0">common.utils.Logger</node>
+    <node x="284.49999999999994" y="966.0">server.network.ServerToServerChannel</node>
+    <node x="1026.4380555555554" y="785.0">server.network.ServerToClientHandler</node>
+    <node x="69.66444444444448" y="582.0">common.messages.InfoMessage</node>
+    <node x="911.1401303538173" y="1427.998137802607">common.messages.MessageType</node>
+    <node x="517.0" y="2227.0">common.Globals</node>
+    <node x="1368.1401303538173" y="1427.998137802607">common.messages.ObjectReq</node>
+    <node x="290.74999999999994" y="774.0">server.network.ServerToServerHandler</node>
+    <node x="43.60138888888889" y="1938.0">server.network.ConnectionManager</node>
+    <node x="0.0" y="2227.0">common.messages.MutationWriteReq</node>
+    <node x="305.7605555555556" y="1223.0">server.network.Node</node>
+    <node x="383.3999999999999" y="2130.0">server.Main</node>
+    <node x="962.1401303538173" y="1961.998137802607">common.utils.MessageParser</node>
+    <node x="611.75" y="335.5">common.messages.MutationReq</node>
+    <node x="1065.0" y="0.0">common.messages.Account</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="server.network.ServerToClientHandler" target="common.messages.AccountMessage">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="common.messages.MutationAck" target="common.messages.MutationReq">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="server.Main" target="server.network.Node">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="common.utils.MessageParser" target="common.messages.WrapperMessage">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="server.Main" target="server.network.ConnectionManager">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="server.network.ServerToServerChannel" target="server.network.Node">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="server.network.ServerToClientChannel" target="server.network.ServerToClientHandler">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="server.network.ServerToClientHandler" target="server.network.Node">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="server.network.ServerToServerHandler" target="server.network.Node">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="server.network.ServerToClientHandler" target="common.messages.PrimaryInfo">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="server.network.ServerToServerHandler" target="common.messages.InfoMessage">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="server.network.HeartBeatRunner" target="server.network.Node">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="server.network.ServerToClientHandler" target="common.messages.MutationAck">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="server.network.ConnectionManager" target="server.network.Node">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="common.messages.AccountMessage" target="common.messages.Account">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="common.messages.WrapperMessage" target="common.messages.MessageType">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="server.network.ConnectionManager" target="server.network.HeartBeatRunner">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="server.network.Node" target="server.network.ServerToServerChannel">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="server.network.ServerToClientChannel" target="server.network.Node">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="server.network.Node" target="common.messages.MutationReq">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="server.network.ConnectionManager" target="common.messages.InfoMessage">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="common.messages.MutationReq" target="common.messages.MutationType">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="server.network.ServerToServerChannel" target="server.network.ServerToServerHandler">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="common.messages.MutationReq" target="common.messages.Account">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="server.network.Node" target="common.messages.HeartBeat">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="server.network.Node" target="server.network.ServerToClientChannel">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="server.network.HeartBeatRunner" target="common.messages.HeartBeat">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="0.36064472800537273" x="1130.7169459962756" y="674.5" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Methods</Category>
+    <Category>Fields</Category>
+    <Category>Constructors</Category>
+    <Category>Properties</Category>
+    <Category>Inner Classes</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

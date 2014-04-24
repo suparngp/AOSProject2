@@ -32,6 +32,9 @@ public class ConnectionManager {
         this.node.getServerToServerChannel().init().start();
     }
 
+    public void initializeClientChannel() throws Exception{
+        this.node.getServerToClientChannel().init().start();
+    }
     public void discoverNetwork() throws Exception {
 
         try {
@@ -95,7 +98,7 @@ public class ConnectionManager {
             this.node.getDiscoveredServers().addAll(discoveredNodes);
 
             new HeartBeatRunner(node).start();
-            node.getServerToClientChannel().init().start();
+            initializeClientChannel();
             new InputProcessor(node).processInput();
         } catch (Exception e) {
             Logger.error("Unable to complete the network discovery process", e);
