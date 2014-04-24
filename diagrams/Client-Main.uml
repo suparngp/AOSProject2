@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>client.Main</OriginalElement>
+  <nodes>
+    <node x="82.5" y="1760.0">common.messages.WrapperMessage</node>
+    <node x="798.5" y="368.0">common.messages.HeartBeat</node>
+    <node x="1581.75" y="682.0">common.messages.MutationAck</node>
+    <node x="457.0" y="1350.0">common.messages.PrimaryInfo</node>
+    <node x="1679.25" y="89.0">common.messages.MutationType</node>
+    <node x="928.5" y="582.0">client.clientNetwork.ClientNode</node>
+    <node x="109.5" y="324.0">common.messages.AccountMessage</node>
+    <node x="0.0" y="929.0">client.InputProcessor</node>
+    <node x="1395.0" y="1350.0">common.utils.Logger</node>
+    <node x="807.0" y="1350.0">common.messages.InfoMessage</node>
+    <node x="0.0" y="1350.0">common.messages.MessageType</node>
+    <node x="1119.0" y="1350.0">common.Globals</node>
+    <node x="441.5" y="335.0">common.messages.ObjectReq</node>
+    <node x="1046.5" y="346.0">common.messages.MutationWriteReq</node>
+    <node x="51.0" y="1884.0">common.utils.MessageParser</node>
+    <node x="1538.5" y="335.5">common.messages.MutationReq</node>
+    <node x="690.7261904761906" y="1253.0">client.Main</node>
+    <node x="63.91666666666663" y="0.0">common.messages.Account</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="common.messages.MutationAck" target="common.messages.MutationReq">
+      <point x="0.0" y="-48.5" />
+      <point x="68.25" y="92.5" />
+    </edge>
+    <edge source="common.messages.WrapperMessage" target="common.messages.MessageType">
+      <point x="0.0" y="-37.0" />
+      <point x="0.0" y="180.0" />
+    </edge>
+    <edge source="client.InputProcessor" target="common.messages.Account">
+      <point x="-99.0" y="-137.0" />
+      <point x="99.0" y="299.0" />
+      <point x="123.08333333333326" y="299.0" />
+      <point x="-118.33333333333337" y="137.0" />
+    </edge>
+    <edge source="common.messages.AccountMessage" target="common.messages.Account">
+      <point x="0.0" y="-104.0" />
+      <point x="265.5" y="299.0" />
+      <point x="241.41666666666663" y="299.0" />
+      <point x="0.0" y="137.0" />
+    </edge>
+    <edge source="common.utils.MessageParser" target="common.messages.WrapperMessage">
+      <point x="0.0" y="-59.0" />
+      <point x="0.0" y="37.0" />
+    </edge>
+    <edge source="client.Main" target="client.clientNetwork.ClientNode">
+      <point x="42.25" y="-26.0" />
+      <point x="817.4761904761906" y="1228.0" />
+      <point x="1182.0" y="1228.0" />
+      <point x="84.5" y="148.5" />
+    </edge>
+    <edge source="client.clientNetwork.ClientNode" target="common.messages.ObjectReq">
+      <point x="-126.75" y="-148.5" />
+      <point x="970.75" y="562.0" />
+      <point x="610.0" y="562.0" />
+      <point x="0.0" y="93.0" />
+    </edge>
+    <edge source="client.Main" target="client.InputProcessor">
+      <point x="-42.25" y="-26.0" />
+      <point x="732.9761904761906" y="1228.0" />
+      <point x="198.0" y="1228.0" />
+      <point x="0.0" y="137.0" />
+    </edge>
+    <edge source="client.clientNetwork.ClientNode" target="common.messages.HeartBeat">
+      <point x="-42.25" y="-148.5" />
+      <point x="1055.25" y="552.0" />
+      <point x="912.5" y="552.0" />
+      <point x="0.0" y="60.0" />
+    </edge>
+    <edge source="client.InputProcessor" target="client.clientNetwork.ClientNode">
+      <point x="99.0" y="-137.0" />
+      <point x="297.0" y="904.0" />
+      <point x="1013.0" y="904.0" />
+      <point x="-84.5" y="148.5" />
+    </edge>
+    <edge source="common.messages.MutationReq" target="common.messages.MutationType">
+      <point x="68.25" y="-92.5" />
+      <point x="0.0" y="48.0" />
+    </edge>
+    <edge source="client.clientNetwork.ClientNode" target="common.messages.MutationReq">
+      <point x="126.75" y="-148.5" />
+      <point x="1224.25" y="562.0" />
+      <point x="1606.75" y="562.0" />
+      <point x="-68.25" y="92.5" />
+    </edge>
+    <edge source="common.messages.MutationReq" target="common.messages.Account">
+      <point x="-68.25" y="-92.5" />
+      <point x="1606.75" y="299.0" />
+      <point x="359.74999999999994" y="299.0" />
+      <point x="118.33333333333331" y="137.0" />
+    </edge>
+    <edge source="client.clientNetwork.ClientNode" target="common.messages.MutationWriteReq">
+      <point x="42.25" y="-148.5" />
+      <point x="1139.75" y="552.0" />
+      <point x="1282.5" y="552.0" />
+      <point x="0.0" y="82.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="0.38563553350334334" x="1056.145645163692" y="1089.253266810726" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Fields</Category>
+    <Category>Constructors</Category>
+    <Category>Methods</Category>
+    <Category>Properties</Category>
+    <Category>Inner Classes</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
