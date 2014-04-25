@@ -96,8 +96,16 @@ public class ServerToClientHandler extends Thread {
 
 
                 case MUTATION_REQ: {
-                    MutationReq mutationReq = (MutationReq) MessageParser.deserializeObject(wrapper.getMessageBody());
                     node.getLock().lock();
+                    MutationReq mutationReq = (MutationReq) MessageParser.deserializeObject(wrapper.getMessageBody());
+                    if(mutationReq.getRequestType() != MutationType.CREATE &&
+                            node.getDataAccess().getAccount(mutationReq.getObjectId()) == null){
+                        String toBeSent = MessageParser.createWrapper(mutationReq, MessageType.MUTATION_REQ_FAILED);
+                        dos.writeUTF(toBeSent);
+                        node.getLock().unlock();
+                        break;
+                    }
+                    //node.getLock().lock();
                     node.addMutationReq(mutationReq);
                     MutationAck ack = new MutationAck(mutationReq, true);
                     String toBeSent = MessageParser.createWrapper(ack, MessageType.MUTATION_ACK);
@@ -162,10 +170,13 @@ public class ServerToClientHandler extends Thread {
                             socket1.close();
                         }
                     }
-                    node.getMutationRequestBuffer().get(req.getObjectId()).clear();
-                    node.getMutationWriteRequests().get(req.getObjectId()).clear();
-                    node.getMutationRequestBuffer().remove(req.getObjectId());
-                    node.getMutationWriteRequests().remove(req.getObjectId());
+
+                    //clear only the processed requests //TODO
+                    node.clearMutationRequests(req.getObjectId(), serialNums);
+//                    node.getMutationRequestBuffer().get(req.getObjectId()).clear();
+//                    node.getMutationWriteRequests().get(req.getObjectId()).clear();
+//                    node.getMutationRequestBuffer().remove(req.getObjectId());
+//                    node.getMutationWriteRequests().remove(req.getObjectId());
                     node.getLock().unlock();
                     if(successList.size() > 1){
                         toBeSent = MessageParser.createWrapper(req, MessageType.MUTATION_WRITE_ACK);

@@ -114,17 +114,17 @@ public class ClientNode {
      */
     //TODO update the code.
     synchronized int computeServerId(String objectId) {
-        return 0;
+//        return 0;
 
-//        if(objectId == null || objectId.isEmpty()){
-//            return 0;
-//        }
-//
-//        int sum = 0;
-//        for(int i = 0; i < objectId.length(); i++){
-//            sum += (int)objectId.charAt(i);
-//        }
-//        return sum % 7;
+        if(objectId == null || objectId.isEmpty()){
+            return 0;
+        }
+
+        int sum = 0;
+        for(int i = 0; i < objectId.length(); i++){
+            sum += (int)objectId.charAt(i);
+        }
+        return sum % 7;
     }
 
 

@@ -35,12 +35,16 @@ public enum MessageType implements Serializable{
     /***
      * New protocol
      */
+    READ_OBJ_REQ,
+    READ_OBJ_SUCCESS,
+    READ_OBJ_FAILED,
     HEARTBEAT,
     HEARTBEAT_ECHO,
     WHO_IS_PRIMARY,
     PRIMARY_INFO,
     MUTATION_REQ,
     MUTATION_ACK,
+    MUTATION_REQ_FAILED,
     MUTATION_WRITE_REQ,
     MUTATION_WRITE_ACK,
     MUTATION_WRITE_FAILED,

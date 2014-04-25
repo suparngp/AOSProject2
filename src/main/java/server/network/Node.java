@@ -129,17 +129,17 @@ public class Node extends Thread {
      * @return the primary server's id
      */
     public synchronized int computeServerId(String objectId) {
-        return 0;
+//        return 0;
 
-//        if (objectId == null || objectId.isEmpty()) {
-//            return 0;
-//        }
-//
-//        int sum = 0;
-//        for (int i = 0; i < objectId.length(); i++) {
-//            sum += (int) objectId.charAt(i);
-//        }
-//        return sum % 7;
+        if (objectId == null || objectId.isEmpty()) {
+            return 0;
+        }
+
+        int sum = 0;
+        for (int i = 0; i < objectId.length(); i++) {
+            sum += (int) objectId.charAt(i);
+        }
+        return sum % 7;
     }
 
     /**
@@ -362,6 +362,52 @@ public class Node extends Thread {
         mutationRequestBuffer.clear();
         mutationWriteRequests.clear();
         dataAccess.clearAllData();
+    }
+
+    /**
+     * Clears the data for the processed requests.
+     * @param objectId the object id
+     * @param requestIds the list of processed request ids.
+     */
+    public void clearMutationRequests(String objectId, List<String> requestIds){
+        List<String> requests = mutationWriteRequests.get(objectId);
+        requests.removeAll(requestIds);
+        Logger.log("Clearing", requestIds);
+//        if(requests != null && !requests.isEmpty()){
+//            for(String id: requestIds){
+//                requests.remove(id);
+//            }
+//        }
+
+        List<MutationReq> mutationReqs = mutationRequestBuffer.get(objectId);
+        if(mutationReqs != null && !mutationReqs.isEmpty()){
+            for(String id: requestIds){
+                MutationReq mutationReq = null;
+                for(MutationReq mr: mutationReqs){
+                    if(mr.getRequestId().equals(id)){
+                        mutationReq = mr;
+                        break;
+                    }
+                }
+                if(mutationReq != null){
+                    mutationReqs.remove(mutationReq);
+                }
+            }
+        }
+    }
+
+    /**
+     * Performs mutation and Removes the mutation request
+     * @param objectId
+     * @param mutationReq
+     */
+    public synchronized  void performAndRemoveMutationRequest
+    (String objectId, MutationReq mutationReq) throws Exception{
+        performMutation(mutationReq);
+        List<MutationReq> requests = this.getMutationRequestBuffer().get(objectId);
+        if(requests != null && !requests.isEmpty()){
+            requests.remove(mutationReq);
+        }
     }
 
 }

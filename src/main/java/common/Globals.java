@@ -12,7 +12,7 @@ import java.util.HashMap;
  * Created by suparngupta on 4/4/14.
  */
 public class Globals {
-    public static int serverCount = 3;
+    public static int serverCount = 7;
     public static int heartbeatFrequency = 20000;
     public static HashMap<Integer, String> serverHostNames = new HashMap<>();
     public static HashMap<Integer, Integer> serverPortNums = new HashMap<>();
