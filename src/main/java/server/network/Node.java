@@ -401,13 +401,14 @@ public class Node extends Thread {
      * @param objectId
      * @param mutationReq
      */
-    public synchronized  void performAndRemoveMutationRequest
+    public synchronized  boolean performAndRemoveMutationRequest
     (String objectId, MutationReq mutationReq) throws Exception{
-        performMutation(mutationReq);
+        boolean result = performMutation(mutationReq);
         List<MutationReq> requests = this.getMutationRequestBuffer().get(objectId);
         if(requests != null && !requests.isEmpty()){
             requests.remove(mutationReq);
         }
+        return result;
     }
 
 }

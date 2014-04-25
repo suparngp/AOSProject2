@@ -102,7 +102,7 @@ public class ServerToServerHandler extends Thread {
                         }
 
                         if(mutationReq != null){
-                            node.performAndRemoveMutationRequest(req.getObjectId(), mutationReq);
+                            result = node.performAndRemoveMutationRequest(req.getObjectId(), mutationReq);
 //                            result = node.performMutation(mutationReq);
 //
 //                            requests.remove(mutationReq);

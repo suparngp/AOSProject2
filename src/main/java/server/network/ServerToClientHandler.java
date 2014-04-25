@@ -178,6 +178,7 @@ public class ServerToClientHandler extends Thread {
 //                    node.getMutationRequestBuffer().remove(req.getObjectId());
 //                    node.getMutationWriteRequests().remove(req.getObjectId());
                     node.getLock().unlock();
+                    Logger.log(successList);
                     if(successList.size() > 1){
                         toBeSent = MessageParser.createWrapper(req, MessageType.MUTATION_WRITE_ACK);
                     }
