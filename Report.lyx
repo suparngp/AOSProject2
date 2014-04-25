@@ -1,0 +1,1218 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass report
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing double
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine natbib_numerical
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 1in
+\rightmargin 1in
+\bottommargin 2.5cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+CS 6378: Project II
+\end_layout
+
+\begin_layout Author
+Nimisha Gupta
+\begin_inset Newline newline
+\end_inset
+
+Suparn Gupta
+\end_layout
+
+\begin_layout Chapter
+Introduction
+\end_layout
+
+\begin_layout Standard
+Distributed systems usually keep the copies of data at multiple locations.
+ The use of such copies is to minimize the data loss at the time of failures.
+ The decentralized design is preferred over a centralized architecture because
+ the main controller node becomes a single point of failuer.
+ So, systems which run independently and still assure the data consistency
+ with high availability are desired.
+ Multiple servers provide the data protection guarantees against a given
+ number of failures.
+ However, ensuring consistency is a complex requirement.
+ It depends on the actual requirements of the application.
+ Engines like banking systems, airline reservation systems have strict requireme
+nts of consistency across all the replicated nodes.
+ This may cause the overall performance of the system to go down in case
+ of write operations.
+ On the other hand, systems like social networking sites (Twitter) have
+ loose requirements.
+ These applications can tolerate momentary inconsistency among the data
+ while believing that at some point of time in the future, the data will
+ eventually become consistent across the whole system.
+ Such application target the user's experience over the data consistency.
+ 
+\end_layout
+
+\begin_layout Standard
+Since the replicated systems have multiple copies, they can also speed up
+ the perfoance of the system.
+ Because the client can chose the nearest replica which has the copy of
+ the required object, the read operations tend to become faster.
+ Using this notion, Facebook came up with a scheme 
+\begin_inset Quotes eld
+\end_inset
+
+Write Locally, Read Globally
+\begin_inset Quotes erd
+\end_inset
+
+, where the data is written to the nearest data center and is eventually
+ updated across the whole network.
+ However, read operations are performed across the whole network to get
+ the latest version of the data.
+ This is done so because the write operations are more expensive (slow,
+ so as to say) than the read operations.
+ This way, the user can be unblocked while the writes propagate across the
+ system, while he still gets the latest data when reads are performed.
+\end_layout
+
+\begin_layout Standard
+This project requires the design of a protcol which can ensure strict consistenc
+y across the system.
+ The writes are allowed only if a mojority of servers are available.This
+ ensures that a majority of servers have the latest data.
+ The majority has a consent if atleast 
+\emph on
+k 
+\emph default
+servers agree to participate in the request.
+ The complete problem can be summarized as follows.
+ 
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+The system consists of n servers and m clients.
+ All the servers are interconnected to each other.
+ Clients try to perform basic CRUD (Create, Read, Update, Delete) operations
+ on the objects stored at the servers.
+ A server must allow the creation, update and deletion only if a majority
+ of servers, i.e atleast k-many servers are participating in the same request.
+ Otherwise the request should be denied.
+ However, the read operations should be allowed even if there is just one
+ server, which has agreed to perform the read.
+ The system can suffer from crash and network failures which can lead to
+ partitioning in the network.
+\end_layout
+
+\begin_layout Standard
+For the purpose of this project, values of 
+\emph on
+n, m 
+\emph default
+and
+\emph on
+ k 
+\emph default
+are chosen to be 
+\emph on
+7
+\emph default
+, 
+\emph on
+5
+\emph default
+ and 
+\emph on
+2.
+ 
+\emph default
+So, atleast 
+\emph on
+2
+\emph default
+ servers must be available to perform any write to the object.
+ In the next sections, we describe how we can achieve this and the actual
+ implementation of the system in Java.
+ The further report is divided into following chapters: Chapter 2 describes
+ the protocol, messages and sequence of events and Chapter 3 describes the
+ implementation of the system in Java
+\end_layout
+
+\begin_layout Chapter
+The Protocol
+\end_layout
+
+\begin_layout Standard
+The goal is to create a protocol which :
+\end_layout
+
+\begin_layout Enumerate
+Replicates the new objects and updates on a majority of servers.
+\end_layout
+
+\begin_layout Enumerate
+Blocks any object updates, including delete operation if a majority of servers
+ is not available.
+\end_layout
+
+\begin_layout Enumerate
+Ensures the consistent concurrent writes if multiple clients try to modify
+ the same object.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Allows the clients to read the latest version of the object, which is accessible.
+\end_layout
+
+\begin_layout Standard
+We designed a protocol which satisfies all the above criteria based on Google
+ File System 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "gfs"
+
+\end_inset
+
+.
+ Before we present the details of the protocol, lets define some terms which
+ we will use in further sections.
+ Any operation which modifies an object on in the file system, which includes,
+ creation, update and deletion are collectively referred to as 
+\emph on
+mutation operations 
+\emph default
+or simply
+\emph on
+ mutations.
+ 
+\emph default
+All these operations are similar to each other in a sense that, the requirements
+ 1, 2 and 3 must be satisfied in all the operations.
+ All the servers are 
+\emph on
+peers
+\emph default
+ in a sense that the client has access to all the servers.
+ This is different from a proxy based architecture where a single node is
+ facing the client hiding the internal topology.
+ In the next section, we present the overall system architecture.
+\end_layout
+
+\begin_layout Section
+System Architecture
+\end_layout
+
+\begin_layout Standard
+There are 7 servers in the system which are running identical processes.
+ All the servers are interconnected to each other via direct links.
+ All the communication channels use TCP as the underlying protocol.
+ So the communication is reliable.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:The-System-Architecture."
+
+\end_inset
+
+The System Architecture.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:The-System-Architecture."
+
+\end_inset
+
+, the servers are represented in a ring architecture.
+ However, the reader should not be confused as its just a way to arrange
+ the servers in the figure.
+ Internally, there is no specific ring protocol required for this system.
+ Each server has a unique identifier in server namespace and holds a certain
+ number of objects.
+ Each object has a unique identifier.
+ Such an identifier is generated using an approach used by Twitter as discussed
+ in 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "snowflake"
+
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Then there are client nodes which also have a unique identifier associated
+ with them within the client namespace.
+ In case of no failures, each client can connect to each server via direct
+ TCP connection.
+ Also, the object ids for each object are generated by the client as per
+ the need.
+ Instead of using the network card addresses, we use the client's id as
+ a unique identifier for the client while generating the object id.
+ Each object id thus consists of the following parts:
+\end_layout
+
+\begin_layout Enumerate
+The current local timestamp of the client in milliseconds
+\end_layout
+
+\begin_layout Enumerate
+The client's id
+\end_layout
+
+\begin_layout Enumerate
+A counter value which increments by one after each new id is generated and
+ resets when reaches 10.
+ The maximum value is configurable as per the needs of the application.
+ If the application has a very high amount of writes happening per second,
+ then it makes more sense to increase the counter's maximum value.
+\end_layout
+
+\begin_layout Standard
+A client can send only a single request to 
+\emph on
+mutate
+\emph default
+ an object at a time.
+ Only after the operation is successful or it fails, it can issue the subsequent
+ requests.
+ However, multiple clients can issue requests for the same object concurrently.
+ Each object id uniquely maps to exactly 3 servers using a hash function
+ 
+\emph on
+H(s)
+\emph default
+ where 
+\emph on
+s
+\emph default
+ represents the object id.
+ In this implementation, the hash function returns the ASCII sum of all
+ the characters in the object id.
+ Then server ids are calculated as follows:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Itemize
+
+\emph on
+H(s)
+\emph default
+ = ASCII sum of object ID, 
+\emph on
+s
+\end_layout
+
+\begin_layout Itemize
+Server 1's id = 
+\emph on
+H(s) % 7
+\end_layout
+
+\begin_layout Itemize
+Server 2's id =
+\emph on
+ (H(s) + 1) % 7
+\end_layout
+
+\begin_layout Itemize
+Server 3's id = 
+\emph on
+(H(s) + 2) % 7
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Computing Server IDs for the request.
+\begin_inset CommandInset label
+LatexCommand label
+name "alg:Computing-Server-IDs"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Protocol Model and Messages
+\end_layout
+
+\begin_layout Standard
+An overview of the protocol is presented next.
+ Before servers start serving the clients, a bootstrap process is executed.
+ All servers identify each other via network discovery messages.
+ In this phase, they exchange information about their host names and their
+ node ids.
+ Once all the servers have been identified, the servers become ready to
+ server the clients.
+ Once discovery process completes, the clients can begin requesting services
+ from the servers.
+ All the servers keep probing the other servers to check their liveness
+ by sending the 
+\emph on
+HEARTBEAT
+\emph default
+ messages.
+ If the recipient is alive, it responds with 
+\emph on
+HEARTBEAT
+\emph default
+_ACK message.
+\end_layout
+
+\begin_layout Standard
+A client can ask for two kinds of services: 
+\emph on
+Read
+\emph default
+ and 
+\emph on
+Mutation
+\emph default
+.
+ 
+\emph on
+Mutation
+\emph default
+ includes write, update and delete operations.
+ The client computes the relevant server ids based on the object id.
+ In order to 
+\emph on
+read
+\emph default
+ an object, the client simply sends a read request and if the object is
+ available to read, the server returns the object to be read.
+ If the server is unavailable or it doesn't have the object, the client
+ sends a request to the next server.
+ If the client wants to mutate an object, first it verifies if at least
+ two servers are available to perform mutation.
+ If there are at least two servers available, it then sends a request to
+ gather the information about the primary server.
+ The servers decide amongst themselves which server should act as a primary.
+ This is different from the design presented in 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "gfs"
+
+\end_inset
+
+ where there is a separate master server which is used to find the primary
+ server.
+ Once the servers decide upon the primary, the information about the primary
+ server is returned to the client.
+ The client then forwards the mutation request to all the relevant servers.
+ The servers buffer the request in memory.The client then, sends the mutation
+ write request to the primary server to commit the transaction.
+ The primary server assigns this request a unique serial number and relays
+ the request to all the other servers where the operation has to be performed.
+ If the mutation is successful, each replica responds to the primary server
+ with an acknowledgement.
+ Once the primary server obtains at least two acknowledgements from replicas
+ including itself, it sends acknowledgement to the client.
+ The reader may notice that the 
+\emph on
+mutation 
+\emph default
+requires the consent of majority of nodes similar to the one described by
+ Gifford in 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "gifford"
+
+\end_inset
+
+ with 
+\emph on
+weight equal to 1 for each object
+\emph default
+\SpecialChar \@.
+
+\end_layout
+
+\begin_layout Standard
+The relevant servers computed using 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:Computing-Server-IDs"
+
+\end_inset
+
+ select the primary server for the request based on the node ID.
+ The server, which has the least value of node ID, and is alive is chosen
+ as the primary server.
+ Let us look at the types of messages exchanged among different entities
+ in the system.
+\end_layout
+
+\begin_layout Subsection
+Types of messages
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Types-of-messages"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Network control messages
+\end_layout
+
+\begin_layout Standard
+The set of messages exchanged between servers during the network discovery
+ in order to identify each other are descibed below: 
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+SERVER_INTRO
+\emph default
+: Each server to every other server to identify itself to other servers.
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+SERVER_INTRO_REPLY
+\emph default
+: This message is sent by a server on receiving a SERVER_INTRO message to
+ acknowledge the other server.
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+DISCOVERY_COMPLETE
+\emph default
+: This message is sent to all the servers once a server identifies all other
+ servers in the network.
+\end_layout
+
+\begin_layout Standard
+Messages exchanged to check if a server is reachable at any point of time:
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+HEARTBEAT
+\emph default
+: Sent from client or server to servers to check if the server is reachable
+ in the network.
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+HEARTBEAT_ECHO
+\emph default
+: Reply sent from the server that received the heartbeat request.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Read operation
+\end_layout
+
+\begin_layout Standard
+Messages exchanged to read an object: 
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+READ_OBJ_REQ
+\emph default
+: Sent from client to server to request to read an object.
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+READ_OBJ_SUCCESS
+\emph default
+: Sent from server to client upon successful read operation along with the
+ read data.
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+READ_OBJ_FAILED
+\emph default
+: Sent from server to client if the read operation fails.
+\end_layout
+
+\begin_layout Subsubsection
+Mutation messages
+\end_layout
+
+\begin_layout Standard
+Messages exchanged to mutate an object: 
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+WHO_IS_PRIMARY
+\emph default
+: Sent from client to servers to identify the primary server.
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+PRIMARY_INFO
+\emph default
+: Sent from server to client informing the client which server will act
+ as the primary server for this request.
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+MUTATION_REQ
+\emph default
+: Sent from client to server to request a mutation operation on the object.
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+MUTATION_ACK
+\emph default
+: Sent from server to client upon receiving the mutation request that it
+ has accepted the request and placed it in buffer.
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+MUTATION_REQ_FAILED
+\emph default
+: Sent from the server to the client if the mutation request is rejected.
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+MUTATION_WRITE_REQ
+\emph default
+: Sent from client to the primary server to commit the mutation request.
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+MUTATION_WRITE_ACK
+\emph default
+: Sent from primary server to the client upon successful mutation request
+ commit.
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+MUTATION_WRITE_FAILED
+\emph default
+: Sent from primary server to the client upon mutation request failure.
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+MUTATION_PROCEED
+\emph default
+: Sent from primary server to other servers upon receiving 
+\emph on
+MUTATION_WRITE_REQ 
+\emph default
+from the client.
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+MUTATION_PROCEED_ACK
+\emph default
+: Sent from replica servers to the primary server when they finish mutating
+ the object locally.
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+MUTATION_PROCEED_FAILED
+\emph default
+: Sent from replica servers to the primary server in case the mutation of
+ the object failed.
+ 
+\end_layout
+
+\begin_layout Section
+Communication Model
+\end_layout
+
+\begin_layout Standard
+On boot up, each server starts a discovering the network.
+ It periodically sends out SERVER_INTRO message to all the known addresses.
+ At this point, the server doesn't know which specific node is listening
+ on that address.
+ On receiving this message, the node replies with 
+\emph on
+SERVER_INTRO_REPLY 
+\emph default
+message which contains the information about the receiver.
+ Once a server knows about all the other servers, it broadcasts a 
+\emph on
+DISCOVERY_COMPLETE
+\emph default
+ message.
+ This message informs the other receivers that the sender node is ready
+ to accept the client connections.
+\end_layout
+
+\begin_layout Standard
+Once the servers are ready to connect to the clients, there are two possible
+ operations as described below: 
+\end_layout
+
+\begin_layout Subsection
+Read
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename figures/ReadDesign.pdf
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Read Operation.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In order to read an object, the client sends a 
+\emph on
+READ_OBJ_REQ
+\emph default
+ to one of the three servers where the object resides.
+ Following cases may arise:
+\end_layout
+
+\begin_layout Itemize
+If the server is available to process the request and the object is available,
+ it returns the object to the client with a 
+\emph on
+READ_OBJ_SUCCESS
+\emph default
+ message.
+ 
+\end_layout
+
+\begin_layout Itemize
+In case the server is available but the object is being used in another
+ request, the server queues the request and processes it once the object
+ is released from the other request.
+ 
+\end_layout
+
+\begin_layout Itemize
+In case the object does not exist on the server, it returns a null value
+ informing the client that the object does not exist on this server with
+ 
+\emph on
+READ_OBJ_FAILED
+\emph default
+ message.
+ 
+\end_layout
+
+\begin_layout Standard
+The client keeps sending the request to the next relevant server until it
+ receives the object or list of servers exhausts.
+\end_layout
+
+\begin_layout Subsection
+MUTATION
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename figures/WriteDesign.pdf
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Mutation Operation.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To perform any mutation operations (Create, Update, Delete), the following
+ procedure is employed.
+ The client sends a 
+\emph on
+HEARTBEAT
+\emph default
+ message to the three servers to identify if they are accessible.
+ If the server is alive, it replies with a 
+\emph on
+HEART_BEAT_ECHO
+\emph default
+ message.
+ If the client does not receive at least two 
+\emph on
+HEARTBEAT_ECHO
+\emph default
+ messages, it fails the request.
+ Otherwise, It requests for information about which server will act as the
+ primary server for this request by sending a 
+\emph on
+WHO_IS_PRIMARY
+\emph default
+ message to all the servers, which replied with 
+\emph on
+HEARTBEAT_ECHO
+\emph default
+ messages.
+ The relevant servers decide amongst themselves based on availability and
+ node id, the primary server and respond with a 
+\emph on
+PRIMARY_INFO
+\emph default
+ message to the client which holds the information (node ID, host name and
+ port number) about the primary server.
+ The client then sends a 
+\emph on
+MUTATION_REQ
+\emph default
+ to all the reachable serves.
+ Upon receiving this message, the server decides if it ready to buffer this
+ ready.
+ If it is able to store the request in the buffer, it replies with a 
+\emph on
+MUTATION_ACK
+\emph default
+ message to the client, otherwise replies with a 
+\emph on
+MUTATION_REQ_FAILED
+\emph default
+ message.
+ The client on receiving at least two acknowledgements sends the 
+\emph on
+MUTATION_WRITE_REQ
+\emph default
+ to the primary server, else it aborts the operation.
+ The primary server on receiving write request assigns a request id to the
+ request and forwards the list of serial numbers and request ids for the
+ same object with a message type 
+\emph on
+MUTATION_PROCEED
+\emph default
+ to all the reachable servers including itself (to simplify the implementation,
+ the primary server also sends the same request on its client port).
+ The servers on receiving the request decide locally if they are available
+ to perform this operation.
+ Once the decision is made and operation is performed either 
+\emph on
+MUTATION_PROCEED_ACK
+\emph default
+ or 
+\emph on
+MUTATION_PROCEED_FAILED
+\emph default
+ is sent.
+ If the primary server receives more than one failed message, it aborts
+ the entire transaction and sends a MUTATION_WRITE_FAILED message to all
+ the servers and the client there by maintaining consistency.
+ Otherwise, it responds the client with 
+\emph on
+MUTATION_WRITE_ACK
+\emph default
+ message.
+ 
+\end_layout
+
+\begin_layout Subsection
+CONCURRENT MUTATIONS
+\end_layout
+
+\begin_layout Standard
+If two clients try to mutate the same object at the same time, the primary
+ assigns a serial number to the request id and then the request with a lower
+ serial number is processed first while the subsequent requests are stored
+ in a buffer until the first request is processed.
+ The subsequent request is processed only after the first request has been
+ processed.
+ This ensures the consistency of data across all the replicas.
+\end_layout
+
+\begin_layout Chapter
+Code Implementation
+\end_layout
+
+\begin_layout Standard
+There are two modules in the implementation:
+\end_layout
+
+\begin_layout Enumerate
+Server Module
+\end_layout
+
+\begin_layout Enumerate
+Client Module
+\end_layout
+
+\begin_layout Standard
+Both modules run independently but use a number of common functions, like
+ serialization and de-serialization of the message data.
+ Figures 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:UML-Class-Diagram"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:UML-Class-Diagram-1"
+
+\end_inset
+
+ show the code structure of both the modules.
+ In both modules Main is the entry point.
+ It requires an argument which acts as the server ID or the client ID based
+ on the module which is being run.
+ Once the server node is started, the connection manager starts the network
+ discovery of the whole system using the ServerToServerChannel and ServerToServe
+rHandler.
+ As soon as the server becomes ready, the ServerToClientChannels are started.
+ All the requests on this channel are handled by ServerToClientHandler.
+ 
+\end_layout
+
+\begin_layout Standard
+When the client is started, it starts an InputProcessor to accept various
+ commands from the user.
+ A user can perform CRUD operations using this menu.
+ Both server and client use Logger, Globals and MessageParser for various
+ functions.
+ MessageParser parses the bytestream into meaningful instances of various
+ kinds of messages.
+ Each message itself is an instance of a class which is sent as a byte stream
+ along with a message type (as describe in section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Types-of-messages"
+
+\end_inset
+
+) and wrapped in WrapperMessage.
+ Google's JSON parsing library known as Gson 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "gson"
+
+\end_inset
+
+ has been used in this implementation to parse the messages and data objects
+ while reading from the files.
+ Maven 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "maven"
+
+\end_inset
+
+ is used as the build tool.
+ A number of test cases have also been designed using JUnit to verify the
+ correctness and measure the performance.
+ The detailed documentation of the code is bundled along with this report.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename diagrams/Server-UML.pdf
+	width 100text%
+	height 100theight%
+	keepAspectRatio
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:UML-Class-Diagram"
+
+\end_inset
+
+UML Class Diagram for Server Node
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename diagrams/Client-UML.pdf
+	width 100text%
+	height 100theight%
+	keepAspectRatio
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:UML-Class-Diagram-1"
+
+\end_inset
+
+UML Class Diagram for Client Node
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To configure the system, two files 
+\emph on
+server.config
+\emph default
+ and 
+\emph on
+server-client.config
+\emph default
+ are required.
+ File 
+\emph on
+server.config
+\emph default
+ contains the hostnames and the corresponding port numbers of the servers
+ for server to server communication.
+ The 
+\emph on
+server-client.config
+\emph default
+ contains the network information about the client-server communication
+ channels.
+ A number of scripts are also bundled which compile and run the system.
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "biblio"
+options "bibtotoc,plainnat"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

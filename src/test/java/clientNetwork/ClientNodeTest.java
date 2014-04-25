@@ -95,7 +95,7 @@ public class ClientNodeTest {
     }
 
     @Test
-    public void testGetPrimaryInfo() throws Exception{
+    public void testGetPrimaryInfo() throws Exception {
         ClientNode node = new ClientNode(0);
         String objectId = node.generateObjectId();
         int server1 = 0;
@@ -109,49 +109,124 @@ public class ClientNodeTest {
     }
 
     @Test
-    public void testGetAvailableServers() throws Exception{
+    public void testGetAvailableServers() throws Exception {
         ClientNode node = new ClientNode(0);
         String objectId = node.generateObjectId();
         Logger.debug(node.getAvailableServers(objectId));
     }
 
     @Test
-    public void testSendMutationRequestCreate() throws Exception{
+    public void testSendMutationRequestCreate() throws Exception {
         long startTime = System.currentTimeMillis();
         ClientNode node = new ClientNode(90);
-        Account acc = Commons.createRandomAccount();
-        for(int i = 0; i < 100; i++){
+        for (int i = 0; i < 100; i++) {
+            Account acc = Commons.createRandomAccount();
             acc.setId(node.generateObjectId());
             node.sendMutationRequest(acc, MutationType.CREATE, acc.getId());
         }
         long end = System.currentTimeMillis();
         System.out.println("Time for 100 create requests" + (end - startTime));
     }
+
     @Test
-    public void testSendMutationRequestUpdate() throws Exception{
+    public void testSendMutationRequestUpdate() throws Exception {
         Account acc = Commons.createRandomAccount();
         ClientNode node = new ClientNode(90);
-        acc.setId(node.generateObjectId());
-        node.sendMutationRequest(acc, MutationType.CREATE, acc.getId());
-        acc.setOwnerName("Suparn Random");
-        node.sendMutationRequest(acc, MutationType.UPDATE, acc.getId());
+        long start = System.currentTimeMillis();
+        acc.setId("1398390300032-90-1");
+        for(int i = 0; i < 100; i++){
+            acc.setOwnerName("Suparn Random");
+            node.sendMutationRequest(acc, MutationType.UPDATE, acc.getId());
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("Total time for 100 updates by 1 client " + (end - start) + " msecs");
     }
+
     @Test
-    public void testSendMutationRequestDelete() throws Exception{
+    public void testSendMutationRequestDelete() throws Exception {
         Account acc = Commons.createRandomAccount();
         ClientNode node = new ClientNode(90);
+        long start = System.currentTimeMillis();
         acc.setId("1398068100269-90-1");
         //node.sendMutationRequest(acc, MutationType.CREATE, acc.getId());
         node.sendMutationRequest(acc, MutationType.DELETE, acc.getId());
+        long end = System.currentTimeMillis();
+        System.out.println("Total time for 100 updates by 1 client " + (end - start) + " msecs");
     }
 
 
     @Test
-    public void testSendReadRequest() throws Exception{
+    public void testSendReadRequest() throws Exception {
         Account acc = Commons.createRandomAccount();
+        int repeat = 100;
         ClientNode node = new ClientNode(90);
+        long start = System.currentTimeMillis();
         acc.setId(node.generateObjectId());
         //node.sendMutationRequest(acc, MutationType.CREATE, acc.getId());
-        node.sendReadRequest("1398073245660-90-1");
+        for (int i = 0; i < repeat; i++) {
+            node.sendReadRequest("1398390300032-90-1");
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("Total time for 100 reads by 1 client " + (end - start) + " msecs");
+    }
+
+    @Test
+    public void testMultiThreadCreate() throws Exception {
+        Thread t1 = new Thread(new TestClients(10, 1));
+        Thread t2 = new Thread(new TestClients(20, 1));
+        Thread t3 = new Thread(new TestClients(30, 1));
+        Thread t4 = new Thread(new TestClients(40, 1));
+        Thread t5 = new Thread(new TestClients(50, 1));
+        t1.start();
+        t2.start();
+        t3.start();
+        t4.start();
+        t5.start();
+        t1.join();
+        t2.join();
+        t3.join();
+        t4.join();
+        t5.join();
+
+
+    }
+
+    @Test
+    public void testMultiThreadUpdate() throws Exception {
+        Thread t1 = new Thread(new TestClients(10, 2));
+        Thread t2 = new Thread(new TestClients(20, 2));
+        Thread t3 = new Thread(new TestClients(30, 2));
+        Thread t4 = new Thread(new TestClients(40, 2));
+        Thread t5 = new Thread(new TestClients(50, 2));
+        t1.start();
+        t2.start();
+        t3.start();
+        t4.start();
+        t5.start();
+        t1.join();
+        t2.join();
+        t3.join();
+        t4.join();
+        t5.join();
+
+    }
+    @Test
+    public void testMultiThreadRead() throws Exception {
+        Thread t1 = new Thread(new TestClients(10, 3));
+        Thread t2 = new Thread(new TestClients(20, 3));
+        Thread t3 = new Thread(new TestClients(30, 3));
+        Thread t4 = new Thread(new TestClients(40, 3));
+        Thread t5 = new Thread(new TestClients(50, 3));
+        t1.start();
+        t2.start();
+        t3.start();
+        t4.start();
+        t5.start();
+        t1.join();
+        t2.join();
+        t3.join();
+        t4.join();
+        t5.join();
+
     }
 } 

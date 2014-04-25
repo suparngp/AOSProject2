@@ -17,9 +17,9 @@ import java.util.List;
  */
 public class ServerToServerHandler extends Thread {
 
-    private static HashSet<Integer> discoveredNodes = new HashSet<>();
-    private Socket socket;
-    private Node node;
+    private static final HashSet<Integer> discoveredNodes = new HashSet<>();
+    private final Socket socket;
+    private final Node node;
 
     public ServerToServerHandler(Node node, Socket socket) {
         super("ServerToServerHandler");
@@ -56,6 +56,7 @@ public class ServerToServerHandler extends Thread {
                     Logger.error("SERVER_INTRO_REPLY received as async");
                     break;
                 }
+
                 case DISCOVERY_COMPLETE: {
                     InfoMessage recMess = (InfoMessage) MessageParser.deserializeObject(wrapper.getMessageBody());
                     discoveredNodes.add(recMess.getSenderId());
@@ -66,11 +67,10 @@ public class ServerToServerHandler extends Thread {
                     break;
                 }
 
-
                 case HEARTBEAT: {
                     HeartBeat beat = (HeartBeat) MessageParser.deserializeObject(wrapper.getMessageBody());
 
-                    if(beat.getSenderId() != node.getNodeId())
+                    if (beat.getSenderId() != node.getNodeId())
                         node.getDiscoveredServers().add(beat.getSenderId());
                     Logger.debug(beat);
                     String toBeSent = MessageParser.createWrapper(beat, MessageType.HEARTBEAT_ECHO);
@@ -101,8 +101,13 @@ public class ServerToServerHandler extends Thread {
                             }
                         }
 
-                        result = node.performMutation(mutationReq);
-                        requests.remove(mutationReq);
+                        if(mutationReq != null){
+                            node.performAndRemoveMutationRequest(req.getObjectId(), mutationReq);
+//                            result = node.performMutation(mutationReq);
+//
+//                            requests.remove(mutationReq);
+                        }
+
                     }
 
                     String toBeSent;
@@ -122,9 +127,6 @@ public class ServerToServerHandler extends Thread {
             }
 
             dos.flush();
-//            dis.close();
-//            dos.close();
-//            socket.close();
         } catch (Exception e) {
             Logger.error("Unable to handle the server to server request", e);
             e.printStackTrace();

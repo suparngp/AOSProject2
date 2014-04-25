@@ -14,9 +14,7 @@ import java.util.*;
 public class DataAccess extends Thread {
     private File dataFile;
 
-    private HashSet<Account> accountList = new HashSet<Account>();
-
-    private BufferedReader br;
+    private final HashSet<Account> accountList = new HashSet<>();
 
     /**
      * Constructor to initialize the services access API.
@@ -31,7 +29,7 @@ public class DataAccess extends Thread {
             if (!dataFile.exists())
                 dataFile.createNewFile();
 
-            br = new BufferedReader(new FileReader(dataFile));
+            BufferedReader br = new BufferedReader(new FileReader(dataFile));
             Gson gson = new Gson();
 
             String input = br.readLine();
@@ -133,7 +131,7 @@ public class DataAccess extends Thread {
 
 
     /**
-     * Flushes the lates accounts to the services file.
+     * Flushes the latest accounts to the services file.
      * It first removes all the records and then appends the latest records
      * from the accounts list.
      *

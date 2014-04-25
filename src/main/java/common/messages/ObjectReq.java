@@ -80,9 +80,8 @@ public class ObjectReq  implements Serializable{
 
         if (clientId != objectReq.clientId) return false;
         if (serverId != objectReq.serverId) return false;
-        if (objectId != null ? !objectId.equals(objectReq.objectId) : objectReq.objectId != null) return false;
+        return !(objectId != null ? !objectId.equals(objectReq.objectId) : objectReq.objectId != null);
 
-        return true;
     }
 
     @Override

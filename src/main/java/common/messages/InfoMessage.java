@@ -59,9 +59,8 @@ public class InfoMessage implements Serializable{
         InfoMessage that = (InfoMessage) o;
 
         if (receiverId != that.receiverId) return false;
-        if (senderId != that.senderId) return false;
+        return senderId == that.senderId;
 
-        return true;
     }
 
     @Override

@@ -9,7 +9,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -18,10 +17,8 @@ import java.util.List;
  */
 public class ServerToClientHandler extends Thread {
 
-    private Socket socket;
-    private Node node;
-
-    private static HashSet<Integer> discoveredNodes = new HashSet<>();
+    private final Socket socket;
+    private final Node node;
 
     public ServerToClientHandler(Node node, Socket socket) {
         super("ServerToClientHandler");
@@ -99,8 +96,16 @@ public class ServerToClientHandler extends Thread {
 
 
                 case MUTATION_REQ: {
-                    MutationReq mutationReq = (MutationReq) MessageParser.deserializeObject(wrapper.getMessageBody());
                     node.getLock().lock();
+                    MutationReq mutationReq = (MutationReq) MessageParser.deserializeObject(wrapper.getMessageBody());
+                    if(mutationReq.getRequestType() != MutationType.CREATE &&
+                            node.getDataAccess().getAccount(mutationReq.getObjectId()) == null){
+                        String toBeSent = MessageParser.createWrapper(mutationReq, MessageType.MUTATION_REQ_FAILED);
+                        dos.writeUTF(toBeSent);
+                        node.getLock().unlock();
+                        break;
+                    }
+                    //node.getLock().lock();
                     node.addMutationReq(mutationReq);
                     MutationAck ack = new MutationAck(mutationReq, true);
                     String toBeSent = MessageParser.createWrapper(ack, MessageType.MUTATION_ACK);
@@ -133,7 +138,7 @@ public class ServerToClientHandler extends Thread {
                         break;
                     }
 
-                    //set the serail order of requests
+                    //set the serial order of requests
                     req.setSerialNumbers(serialNums);
                     Logger.debug(req);
                     String objectId = req.getObjectId();
@@ -165,10 +170,13 @@ public class ServerToClientHandler extends Thread {
                             socket1.close();
                         }
                     }
-                    node.getMutationRequestBuffer().get(req.getObjectId()).clear();
-                    node.getMutationWriteRequests().get(req.getObjectId()).clear();
-                    node.getMutationRequestBuffer().remove(req.getObjectId());
-                    node.getMutationWriteRequests().remove(req.getObjectId());
+
+                    //clear only the processed requests //TODO
+                    node.clearMutationRequests(req.getObjectId(), serialNums);
+//                    node.getMutationRequestBuffer().get(req.getObjectId()).clear();
+//                    node.getMutationWriteRequests().get(req.getObjectId()).clear();
+//                    node.getMutationRequestBuffer().remove(req.getObjectId());
+//                    node.getMutationWriteRequests().remove(req.getObjectId());
                     node.getLock().unlock();
                     if(successList.size() > 1){
                         toBeSent = MessageParser.createWrapper(req, MessageType.MUTATION_WRITE_ACK);
@@ -190,30 +198,4 @@ public class ServerToClientHandler extends Thread {
     }
 
 
-    /**
-     * Checks the account structure if all the fields are set.
-     *
-     * @param acc the account object
-     * @return true if the the account object is valid, otherwise false.
-     */
-    private boolean checkAccountStructure(Account acc) {
-        try {
-            if (acc == null || acc.getId() == null
-                    || acc.getId().isEmpty()
-                    || acc.getCurrentBalance() == null
-                    || acc.getCurrentBalance().doubleValue() == 0.0
-                    || acc.getOpeningBalance() == null
-                    || acc.getOpeningBalance().doubleValue() == 0
-                    || acc.getOwnerName() == null || acc.getOwnerName().isEmpty()) {
-                return false;
-            }
-
-            return true;
-        } catch (Exception e) {
-            Logger.log("Invalid account structure", e);
-            return false;
-        }
-
-
-    }
 }
